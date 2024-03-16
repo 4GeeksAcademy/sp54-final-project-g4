@@ -5,6 +5,24 @@ from datetime import datetime
 db = SQLAlchemy()
 
 
+# Tablas de relación
+movie_tags = db.Table('movie_tags',
+    db.Column('movie_id', db.Integer, db.ForeignKey('movies.id'), primary_key=True),
+    db.Column('tag_id', db.Integer, db.ForeignKey('tags.id'), primary_key=True)
+)
+
+favorite_movies = db.Table('favorite_movies',
+    db.Column('user_id', db.Integer, db.ForeignKey('users.id'), primary_key=True),
+    db.Column('movie_id', db.Integer, db.ForeignKey('movies.id'), primary_key=True)
+)
+
+playlist_movies = db.Table('playlist_movies',
+    db.Column('playlist_id', db.Integer, db.ForeignKey('playlists.id'), primary_key=True),
+    db.Column('movie_id', db.Integer, db.ForeignKey('movies.id'), primary_key=True)
+)
+
+# Tablas
+
 class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False)
@@ -13,11 +31,11 @@ class Users(db.Model):
     credits = db.Column(db.Integer, default=0, unique=False, nullable=False)
     role = db.Column(db.String(20), default='user', unique=False, nullable=False)
     referral_code = db.Column(db.String(10), unique=True, nullable=False)
-    is_active = db.Column(db.Boolean(), unique=False, nullable=False)
+    is_active = db.Column(db.Boolean(), default=True, unique=False, nullable=False)
     referred_by = db.Column(db.String(10), db.ForeignKey('users.referral_code'), unique=False, nullable=True)
     reviews = db.relationship('Reviews', backref='author', lazy=True)
     recommendations = db.relationship('Recommendations', backref='user', lazy=True)
-    favorite_movies = db.relationship('Favorite_movies', backref='user', lazy=True)
+    favorite_movies = db.relationship('Movies', secondary=favorite_movies, lazy='subquery', backref=db.backref('users', lazy=True))
     playlist = db.relationship('Playlists', backref='user', lazy=True)
     notifications = db.relationship('Notifications', backref='user', lazy=True)
     reports = db.relationship('Reports', backref='user_report_made_by', lazy=True, overlaps="reports,user_report_made_by", foreign_keys=('Reports.user_id'))
@@ -63,7 +81,8 @@ class Movies(db.Model):
     sinopsis = db.Column(db.String , unique=False, nullable=True)
     reviews = db.relationship('Reviews', backref='movie_review', lazy=True)
     recommendations = db.relationship('Recommendations', backref='movie_recomendation', lazy=True)
-    tags = db.relationship('Tags', backref='movie_tag', overlaps="movie_tag,tags", lazy=True)
+    tags = db.relationship('Tags', secondary=movie_tags, lazy='subquery', backref=db.backref('movies', lazy=True))
+    is_active = db.Column(db.Boolean(), default=True, unique=False, nullable=False)
 
     def __repr__(self):
         return f'<Movie: {self.id} -  titulo: {self.title}>'
@@ -77,14 +96,14 @@ class Movies(db.Model):
                 'trailer_url': self.trailer_url,
                 'cover': self.cover,
                 'sinopsis': self.sinopsis,
-                'tags': self.tags}
+                'tags': self.tags,
+                'is_active': self.is_active}
 
 
 class Tags(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     tag_name = db.Column(db.String(50), unique=False, nullable=False)
-    movie_id = db.Column(db.Integer, db.ForeignKey('movies.id'), unique=False, nullable=False)
-    movie = db.relationship('Movies', backref='movie_tags', overlaps="movie_tag,tags", lazy=True)
+    movie_id = db.Column(db.Integer, db.ForeignKey('movies.id'), unique=False, nullable=True)
 
     def __repr__(self):
         return f'<Tag: {self.id} - pelicula: {self.movie_id} - etiqueta: {self.tag_name}>'
@@ -102,6 +121,7 @@ class Reviews(db.Model):
     timestamp = db.Column(db.DateTime, unique=False, nullable=False, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'),unique=False, nullable=False)
     movie_id = db.Column(db.Integer, db.ForeignKey('movies.id'),unique=False, nullable=False)
+    is_active = db.Column(db.Boolean(), unique=False, nullable=False)
 
     def __repr__(self):
         return f'<Review: {self.id} - pelicula: {self.movie_id} - usuario: {self.user_id} - {self.rating}>'
@@ -112,28 +132,15 @@ class Reviews(db.Model):
                 'review_text': self.review_text,
                 'timestamp': self.timestamp,
                 'user_id': self.user_id,
-                'movie_id': self.movie_id}
-
-
-class Favorite_movies(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'),unique=False, nullable=False)
-    movie_id = db.Column(db.Integer, db.ForeignKey('movies.id'),unique=False, nullable=False)
-
-    def __repr__(self):
-        return f'<Favorite_movie: {self.id} - pelicula: {self.movie_id} - usuario: {self.user_id}>'
-
-    def serialize(self):
-        return {'id': self.id,
-                'user_id': self.user_id,
-                'movie_id': self.movie_id}
+                'movie_id': self.movie_id,
+                'is_active': self.is_active}
 
 
 class Playlists(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120), unique=False, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), unique=False, nullable=False)
-    movies = db.relationship('Playlists_movies', backref='playlist_movie', lazy=True)
+    movies = db.relationship('Movies', secondary=playlist_movies, lazy='subquery', backref=db.backref('playlists', lazy=True))
 
     def __repr__(self):
         return f'<Playlist: {self.id} - nombre: {self.name} - usuario: {self.user_id}>'
@@ -143,20 +150,6 @@ class Playlists(db.Model):
                 'name': self.name,
                 'user_id': self.user_id,
                 'movies': self.movies}
-
-
-class Playlists_movies(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    playlist_id = db.Column(db.Integer, db.ForeignKey('playlists.id'), unique=False, nullable=False)
-    movie_id = db.Column(db.Integer, db.ForeignKey('movies.id'), unique=False, nullable=False)
-
-    def __repr__(self):
-        return f'<Playlist_movie: {self.id} - playlist: {self.playlist_id} - pelicula: {self.movie_id} >'
-
-    def serialize(self):
-        return {'id': self.id,
-                'playlist_id': self.playlist_id,
-                'movie_id': self.movie_id}
 
 
 class Notifications(db.Model):
@@ -214,8 +207,6 @@ class Reports(db.Model):
     reported_movie_id = db.Column(db.Integer, db.ForeignKey('movies.id'), unique=False, nullable=True)
     resolved = db.Column(db.Boolean, default=False)
     resolver_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    user = db.relationship('Users', backref='user_reports', foreign_keys=[user_id], overlaps="reports,user_report_made_by", lazy=True)
-    reported_user = db.relationship('Users', backref='user_reported', foreign_keys=[reported_user_id], overlaps="reported_reports,user_reported", lazy=True)
 
     def __repr__(self):
         return f'<Report: {self.id} - usuario: {self.user_id} - {self.timestamp} - pelicula reportada: {self.reported_movie_id} - usuario reportado: {self.reported_user_id}>'
