@@ -21,8 +21,8 @@ playlist_movies = db.Table('playlist_movies',
     db.Column('movie_id', db.Integer, db.ForeignKey('movies.id'), primary_key=True)
 )
 
-# Tablas
 
+# Tablas
 class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False)
