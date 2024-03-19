@@ -96,7 +96,7 @@ class Movies(db.Model):
                 'trailer_url': self.trailer_url,
                 'cover': self.cover,
                 'sinopsis': self.sinopsis,
-                'tags': self.tags,
+                'tags': [row.serialize() for row in self.tags],
                 'is_active': self.is_active}
 
 

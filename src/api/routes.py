@@ -4,7 +4,7 @@ This module takes care of starting the API Server, Loading the DB and Adding the
 from flask import Flask, request, jsonify, url_for, Blueprint
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
-from api.models import db, Users
+from api.models import db, Users, Movies, Tags, Reviews, Playlists, Notifications, Followers, User_settings, Reports, Recommendations
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import jwt_required
@@ -39,14 +39,14 @@ def handle_signup():
     data['password'] = bcrypt.hashpw(data['password'], salt)
     data['password'] = data['password'].decode('utf-8')
     user = Users(
-        username = data['username'],
-        email = data['email'],
-        password = data['password'],
-        credits = 0,
-        role = 'user',
-        referral_code = referral_code,
-        is_active = True,
-        referred_by = data['referred_by'])
+                 username = data['username'],
+                 email = data['email'],
+                 password = data['password'],
+                 credits = 0,
+                 role = 'user',
+                 referral_code = referral_code,
+                 is_active = True,
+                 referred_by = data['referred_by'])
     db.session.add(user)
     db.session.commit()
     response_body['message'] = 'User added'
@@ -81,10 +81,13 @@ def login():
 @api.route('/users', methods=['GET'])
 def handle_users():
     response_body = {}
-    users =  db.session.execute(db.select(Users)).scalars()
-    response_body['results'] = [row.serialize() for row in users]
-    response_body['message'] = 'Users info obtained'
-    return response_body, 200
+    if request.method == 'GET':
+        users =  db.session.execute(db.select(Users)).scalars()
+        response_body['results'] = [row.serialize() for row in users]
+        response_body['message'] = 'Users info obtained'
+        return response_body, 200
+    response_body['message'] = 'Method not allowed'
+    return response_body, 405
 
 
 @api.route('/users/<string:username>', methods=['GET'])
@@ -96,9 +99,213 @@ def handle_user(username):
         response_body['message'] = f'{username} info obtained'
         return response_body, 200
     response_body['message'] = 'User not found'
-    return response_body, 200
+    return response_body, 404
 
 
-@api.route("/movies", methods=['GET'])
+@api.route("/movies", methods=['GET','POST'])
 def handle_movies():
-    pass
+    response_body = {}
+    if request.method == 'GET':
+        movies = db.session.execute(db.select(Movies)).scalars()
+        response_body['results'] = [row.serialize() for row in movies]
+        response_body['message'] = 'Movie list obtained'
+        return response_body, 200
+    if request.method == 'POST':
+        data = request.json
+        movie = Movies(
+                        title = data['title'],
+                        release_date = data['released'],
+                        genre = data['genre'],
+                        director = data['director'],
+                        trailer_url = data['trailer_url'],
+                        cover = data['cover_url'],
+                        sinopsis = data['sinopsis'],
+                        is_active = True)
+        db.session.add(movie)
+        db.session.commit()
+        response_body['message'] = 'Movie successfully registered'
+        return response_body, 200
+    response_body['message'] = 'Method not allowed'
+    return response_body, 405
+
+
+@api.route("/movies/<int:movie_id>/addtag/<int:tag_id>", methods=['PATCH'])
+def handle_tag_in_movie(movie_id, tag_id):
+    response_body = {}
+    if request.method == 'PATCH':
+        movie = db.session.execute(db.select(Movies).where(Movies.id == movie_id)).scalar()
+        tag = db.session.execute(db.select(Tags).where(Tags.id == tag_id)).scalar()
+        movie.tags.append(tag)
+        db.session.commit()
+        response_body['message'] = f'Tag {tag_id} successfully added to {movie_id}'
+        return response_body, 200
+    response_body['message'] = 'Method not allowed'
+    return response_body, 405
+
+
+@api.route("/tags", methods=['GET','POST'])
+def handle_tags():
+    response_body = {}
+    if request.method == 'GET':
+        tags = db.session.execute(db.select(Tags)).scalars()
+        response_body['results'] = [row.serialize() for row in tags]
+        response_body['message'] = 'Tag list obtained'
+        return response_body, 200
+    if request.method == 'POST':
+        data = request.json
+        tag = Tags(tag_name = data['tag'])
+        db.session.add(tag)
+        db.session.commit()
+        response_body['message'] = 'tag successfully registered'
+        return response_body, 200
+    response_body['message'] = 'Method not allowed'
+    return response_body, 405
+
+
+@api.route("/reviews/<int:user_id>/<int:movie_id>", methods=['GET','POST'])
+def handle_review_user_and_movie_id(user_id, movie_id):
+    response_body = {}
+    if request.method == 'GET':
+        review = db.session.execute(db.select(Reviews).where(Reviews.user_id == user_id and Reviews.movie_id == movie_id)).scalar()
+        response_body['results'] = review.serialize()
+        response_body['message'] = f'Review list from user {user_id}, movie {movie_id} obtained'
+        return response_body, 200
+    if request.method == 'POST':
+        data = request.json
+        if data['rating'] > 5.0:
+            data['rating'] = 5.0
+        elif data['rating'] < 0.0:
+            data['rating'] = 0
+        review = Reviews(
+                         rating = data['rating'],
+                         review_text = data['review'],
+                         user_id = user_id,
+                         movie_id = movie_id,
+                         is_active = True)
+        db.session.add(review)
+        db.session.commit()
+        response_body['message'] = 'Review successfully registered'
+        response_body['results'] = f"({data['review']}) added to user: {user_id} with rating {data['rating']}"
+        return response_body, 200
+    response_body['message'] = 'Method not allowed'
+    return response_body, 405
+
+
+# Donete
+@api.route("/reviews/user/<int:user_id>", methods=['GET'])
+def handle_review_user_id(user_id):
+    response_body = {}
+    if request.method == 'GET':
+        reviews = db.session.execute(db.select(Reviews).where(Reviews.user_id == user_id)).scalars()
+        response_body['results'] = [row.serialize() for row in reviews]
+        response_body['message'] = f'Review list from user {user_id} obtained'
+        return response_body, 200
+    response_body['message'] = 'Method not allowed'
+    return response_body, 405
+
+# Donete
+@api.route("/reviews/movie/<int:movie_id>", methods=['GET'])
+def handle_review_movie_id(movie_id):
+    response_body = {}
+    if request.method == 'GET':
+        reviews = db.session.execute(db.select(Reviews).where(Reviews.movie_id == movie_id)).scalars()
+        response_body['results'] = [row.serialize() for row in reviews]
+        response_body['message'] = f'Review list from movie {movie_id} obtained'
+        return response_body, 200
+    response_body['message'] = 'Method not allowed'
+    return response_body, 405
+
+
+# @api.route("/playlists/<int:user_id>", methods=['GET'])
+# def handle_playlists_user_all():
+#     response_body = {}
+#     if request.method == 'GET':
+#         playlists = db.session.execute(db.select(Playlists)).scalars()
+#         response_body['results'] = [row.serialize() for row in playlists]
+#         response_body['message'] = 'Playlists obtained'
+#         return response_body, 200
+#     response_body['message'] = 'Method not allowed'
+#     return response_body, 405
+
+
+# @api.route("/playlists/<int:user_id>", methods=['GET'])
+# def handle_playlists_user_playlist():
+#     response_body = {}
+#     if request.method == 'GET':
+#         playlists = db.session.execute(db.select(Playlists)).scalars()
+#         response_body['results'] = [row.serialize() for row in playlists]
+#         response_body['message'] = 'Playlists obtained'
+#         return response_body, 200
+#     response_body['message'] = 'Method not allowed'
+#     return response_body, 405
+
+
+# Donete
+@api.route("/notifications/<int:user_id>", methods=['GET', 'POST'])
+def handle_notifications(user_id):
+    response_body = {}
+    if request.method == 'GET':
+        notifications = db.session.execute(db.select(Notifications).where(Notifications.user_id == user_id)).scalars()
+        response_body['results'] = [row.serialize() for row in notifications]
+        response_body['message'] = 'Notifications obtained'
+        return response_body, 200
+    if request.method == 'POST':
+        data = request.json
+        notification = Notifications(
+            notification_text = data['notification'],
+            user_id = user_id)
+        db.session.add(notification)
+        db.session.commit()
+        response_body['message'] = 'Notification successfully registered'
+        response_body['results'] = f"({data['notification']}) added to user: {user_id}"
+        return response_body, 200
+    response_body['message'] = 'Method not allowed'
+    return response_body, 405
+
+
+@api.route("/followers", methods=['GET'])
+def handle_followers():
+    response_body = {}
+    if request.method == 'GET':
+        followers = db.session.execute(db.select(Followers)).scalars()
+        response_body['results'] = [row.serialize() for row in followers]
+        response_body['message'] = 'Followers obtained'
+        return response_body, 200
+    response_body['message'] = 'Method not allowed'
+    return response_body, 405
+
+
+@api.route("/settings", methods=['GET'])
+def handle_user_settings():
+    response_body = {}
+    if request.method == 'GET':
+        user_settings = db.session.execute(db.select(User_Settings)).scalars()
+        response_body['results'] = [row.serialize() for row in user_settings]
+        response_body['message'] = 'Settings obtained'
+        return response_body, 200
+    response_body['message'] = 'Method not allowed'
+    return response_body, 405
+
+
+@api.route("/reports", methods=['GET'])
+def handle_reports():
+    response_body = {}
+    if request.method == 'GET':
+        reports = db.session.execute(db.select(Reports)).scalars()
+        response_body['results'] = [row.serialize() for row in reports]
+        response_body['message'] = 'Report list obtained'
+        return response_body, 200
+    response_body['message'] = 'Method not allowed'
+    return response_body, 405
+
+
+@api.route("/recomendations", methods=['GET'])
+def handle_recomendations():
+    response_body = {}
+    if request.method == 'GET':
+        recomendations = db.session.execute(db.select(Recomendations)).scalars()
+        response_body['results'] = [row.serialize() for row in recomendations]
+        response_body['message'] = 'Recomendations obtained'
+        return response_body, 200
+    response_body['message'] = 'Method not allowed'
+    return response_body, 405
