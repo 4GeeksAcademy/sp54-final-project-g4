@@ -36,12 +36,6 @@ def user_referral_code():
             return new_code
 
 
-def check_to_remove_tag(tag):
-    if tag:
-        return False
-    return Return
-
-
 def check_rating(rating):
     return max(0.0, min(rating, 5.0))
 
@@ -82,8 +76,8 @@ def login():
         if username:
             user = db.session.execute(db.select(Users).filter(Users.username.ilike(username))).scalar()
         elif email:
-            email = email.lower() # Tratamos el email para no tener problemas con las mayúsculas.
-            user = db.session.query(Users).filter_by(email=email, is_active=True).first()
+            email_lowercase = email.lower() # Tratamos el email para no tener problemas con las mayúsculas.
+            user = db.session.query(Users).filter_by(email=email_lowercase, is_active=True).first()
         if user:
             password = request.json.get("password", None)
             if bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
@@ -124,7 +118,7 @@ def handle_user(username):
         user = db.session.execute(db.select(Users).filter(Users.username.ilike(username))).scalar()
         if user:
             response_body['results'] = user.serialize()
-            response_body['message'] = f'{username} info obtained.'
+            response_body['message'] = f"{username} info obtained."
             return response_body, 200
         response_body['message'] = f"{username} does not exist."
         return response_body, 404
@@ -228,8 +222,8 @@ def handle_review_user_and_movie_id(user_id, movie_id):
                          is_active = True)
         db.session.add(review)
         db.session.commit()
-        response_body['message'] = 'Review successfully registered'
-        response_body['results'] = f"({data['review']}) added to user: {user_id} with rating {verified_rating}"
+        response_body['message'] = f"Review added to user: {user_id} with rating {verified_rating}"
+        response_body['results'] = f"{data['review']}"
         return response_body, 200
     response_body['message'] = "Method not allowed."
     return response_body, 405
@@ -241,7 +235,7 @@ def handle_review_user_id(user_id):
     if request.method == 'GET':
         reviews = db.session.execute(db.select(Reviews).where(Reviews.user_id == user_id)).scalars()
         response_body['results'] = [row.serialize() for row in reviews]
-        response_body['message'] = f'Review list from user {user_id} obtained'
+        response_body['message'] = f"Review list from user {user_id} obtained"
         return response_body, 200
     response_body['message'] = "Method not allowed."
     return response_body, 405
