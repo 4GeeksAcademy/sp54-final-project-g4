@@ -68,6 +68,22 @@ class Users(db.Model):
                 'reported_reports': [row.serialize() for row in self.reported_reports],
                 'resolved_reports': [row.serialize() for row in self.resolved_reports],
                 'is_active': self.is_active}
+    
+    def serialize_public(self):
+        return {'id': self.id,
+                'username': self.username,
+                'referral_code': self.referral_code,
+                'role': self.role,
+                'is_active': self.is_active}
+
+    def serialize_followers(self):
+        return {'id': self.id,
+                'username': self.username,
+                'referral_code': self.referral_code,
+                'role': self.role,
+                'is_active': self.is_active,
+                'followers': [row.serialize() for row in self.followers],
+                'followings': [row.serialize() for row in self.followings]}
 
 
 class Movies(db.Model):

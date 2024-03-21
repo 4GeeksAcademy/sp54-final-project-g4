@@ -111,17 +111,31 @@ def handle_users():
     return response_body, 405
 
 
-@api.route('/users/<string:username>', methods=['GET'])
+@api.route('/users/<string:username>', methods=['GET', 'PUT'])
 def handle_user(username):
     response_body = {}
-    if request.method == 'GET':
-        user = db.session.execute(db.select(Users).filter(Users.username.ilike(username))).scalar()
-        if user:
-            response_body['results'] = user.serialize()
-            response_body['message'] = f"{username} info obtained."
-            return response_body, 200
-        response_body['message'] = f"{username} does not exist."
+    user = db.session.execute(db.select(Users).filter(Users.username.ilike(username))).scalar()
+    if not user:
+        response_body['message'] = f"User not found"
         return response_body, 404
+
+    if request.method == 'GET':
+        response_body['results'] = user.serialize_public()
+        response_body['message'] = f"{username} info obtained."
+        return response_body, 200
+
+    if request.method == 'PUT':
+        data = request.json
+        if data.get('password', None):
+            password = encrypt_password(data['password'])
+            user.password = password
+
+        for key, value in data.items():
+            if hasattr(user, key) and key != 'password':
+                setattr(user, key, value)
+        db.session.commit()
+        response_body['message'] = f"User updated"
+        return response_body, 200
     response_body['message'] = "Method not allowed."
     return response_body, 405
 
@@ -134,6 +148,7 @@ def handle_movies():
         response_body['results'] = [row.serialize() for row in movies]
         response_body['message'] = "Movie list obtained"
         return response_body, 200
+
     if request.method == 'POST':
         data = request.json
         movie = Movies(
@@ -153,24 +168,43 @@ def handle_movies():
     return response_body, 405
 
 
-@api.route("/movies/<int:movie_id>/addtag/<int:tag_id>", methods=['PATCH'])
-def handle_add_tag_to_movie(movie_id, tag_id):
+@api.route('/movies/<int:movie_id>', methods=['GET', 'PUT'])
+def handle_movie(movie_id):
     response_body = {}
-    if request.method == 'PATCH':
+    movie = db.session.execute(db.select(Movies).where(Movies.id == movie_id)).scalar()
+    if not movie:
+        response_body['message'] = f"Movie not found"
+        return response_body, 404
+
+    if request.method == 'GET':
+        response_body['results'] = movie.serialize()
+        response_body['message'] = f"Movie information obtained"
+        return response_body, 200
+
+    if request.method == 'PUT':
+        data = request.json
+        for key, value in data.items():
+            if hasattr(movie, key):
+                setattr(movie, key, value)
+        db.session.commit()
+        response_body['message'] = f"Movie updated"
+        return response_body, 200
+    response_body['message'] = "Method not allowed."
+    return response_body, 405
+
+
+@api.route("/movies/<int:movie_id>/managetags/<int:tag_id>", methods=['POST', 'DELETE'])
+def handle_manage_tags(movie_id, tag_id):
+    response_body = {}
+    if request.method == 'POST':
         movie = db.session.execute(db.select(Movies).where(Movies.id == movie_id)).scalar()
         tag = db.session.execute(db.select(Tags).where(Tags.id == tag_id)).scalar()
         movie.tags.append(tag)
         db.session.commit()
         response_body['message'] = f"Tag {tag_id} successfully added to {movie_id}"
         return response_body, 200
-    response_body['message'] = "Method not allowed."
-    return response_body, 405
 
-
-@api.route("/movies/<int:movie_id>/deltag/<int:tag_id>", methods=['PATCH'])
-def handle_remove_tag_to_movie(movie_id, tag_id):
-    response_body = {}
-    if request.method == 'PATCH':
+    if request.method == 'DELETE':
         movie = db.session.execute(db.select(Movies).where(Movies.id == movie_id)).scalar()
         tag = db.session.execute(db.select(Tags).where(Tags.id == tag_id)).scalar()
         if tag in movie.tags:
@@ -183,6 +217,7 @@ def handle_remove_tag_to_movie(movie_id, tag_id):
     response_body['message'] = "Method not allowed."
     return response_body, 405
 
+# DELETE Y PUT TAGS
 
 @api.route("/tags", methods=['GET','POST'])
 def handle_tags():
@@ -192,6 +227,7 @@ def handle_tags():
         response_body['results'] = [row.serialize() for row in tags]
         response_body['message'] = "Tag list obtained"
         return response_body, 200
+
     if request.method == 'POST':
         data = request.json
         tag = Tags(tag_name = data['tag'])
@@ -211,6 +247,7 @@ def handle_review_user_and_movie_id(user_id, movie_id):
         response_body['results'] = review.serialize()
         response_body['message'] = f"Review list from user {user_id}, movie {movie_id} obtained"
         return response_body, 200
+
     if request.method == 'POST':
         data = request.json
         verified_rating = check_rating(data['rating'])
@@ -228,17 +265,27 @@ def handle_review_user_and_movie_id(user_id, movie_id):
     response_body['message'] = "Method not allowed."
     return response_body, 405
 
+# FALTA PUT REVIEWS
 
-@api.route("/reviews/user/<int:user_id>", methods=['GET'])
-def handle_review_user_id(user_id):
+@api.route("/reviews/<int:user_id>/<int:review_id>", methods=['PUT'])
+def handle_update_review(user_id, review_id):
     response_body = {}
-    if request.method == 'GET':
-        reviews = db.session.execute(db.select(Reviews).where(Reviews.user_id == user_id)).scalars()
-        response_body['results'] = [row.serialize() for row in reviews]
-        response_body['message'] = f"Review list from user {user_id} obtained"
+    review = db.session.execute(db.select(Reviews).where(Reviews.id == review_id and Users.id == user_id )).scalar()
+    if not review:
+        response_body['message'] = f"Review not found"
+        return response_body, 404
+
+    if request.method == 'PUT':
+        data = request.json
+        for key, value in data.items():
+            if hasattr(review, key):
+                setattr(review, key, value)
+        db.session.commit()
+        response_body['message'] = f"Review updated"
         return response_body, 200
     response_body['message'] = "Method not allowed."
     return response_body, 405
+    
 
 
 @api.route("/reviews/movie/<int:movie_id>", methods=['GET'])
@@ -261,6 +308,7 @@ def handle_playlists_user_all(user_id):
         response_body['results'] = [row.serialize() for row in playlists]
         response_body['message'] = 'Playlists obtained'
         return response_body, 200
+
     if request.method == 'POST':
         data = request.json
         playlist = Playlists(name = data['name'],
@@ -271,6 +319,7 @@ def handle_playlists_user_all(user_id):
         return response_body, 200
     response_body['message'] = "Method not allowed."
     return response_body, 405
+
 
 
 @api.route("/playlists/<int:user_id>/<int:playlist_id>", methods=['GET'])
@@ -285,24 +334,18 @@ def handle_playlists_user_playlist(user_id, playlist_id):
     return response_body, 405
 
 
-@api.route("/playlists/<int:playlist_id>/addmovie/<int:movie_id>", methods=['PATCH'])
-def handle_add_movie_to_playlist(playlist_id, movie_id):
+@api.route("/playlists/<int:playlist_id>/managemovies/<int:movie_id>", methods=['POST', 'DELETE'])
+def handle_manage_movies_to_playlist(playlist_id, movie_id):
     response_body = {}
-    if request.method == 'PATCH':
+    if request.method == 'POST':
         playlist = db.session.execute(db.select(Playlists).where(Playlists.id == playlist_id)).scalar()
         movie = db.session.execute(db.select(Movies).where(Movies.id == movie_id)).scalar()
         playlist.movies.append(movie)
         db.session.commit()
         response_body['message'] = f"Movie {movie_id} successfully added to {playlist_id}"
         return response_body, 200
-    response_body['message'] = "Method not allowed."
-    return response_body, 405
 
-
-@api.route("/playlists/<int:playlist_id>/delmovie/<int:movie_id>", methods=['PATCH'])
-def handle_remove_movie_to_playlist(playlist_id, movie_id):
-    response_body = {}
-    if request.method == 'PATCH':
+    if request.method == 'DELETE':
         playlist = db.session.execute(db.select(Playlists).where(Playlists.id == playlist_id)).scalar()
         movie = db.session.execute(db.select(Movies).where(Movies.id == movie_id)).scalar()
         playlist.movies.remove(movie)
@@ -321,7 +364,8 @@ def handle_notifications(user_id):
         notifications = db.session.execute(db.select(Notifications).where(Notifications.user_id == user_id)).scalars()
         response_body['results'] = [row.serialize() for row in notifications]
         response_body['message'] = "Notifications obtained"
-        return response_body, 200
+        return response_body, 200     
+
     if request.method == 'POST':
         data = request.json
         notification = Notifications(
@@ -359,9 +403,9 @@ def handle_following(user_id):
     response_body['message'] = "Method not allowed."
     return response_body, 405
 
-
-@api.route("/follow/<int:follower_id>/<int:following_id>", methods=['POST'])
-def handle_follow(follower_id, following_id):
+# Juntar ambos endpoints 
+@api.route("/managefollows/<int:follower_id>/<int:following_id>", methods=['POST', 'DELETE'])
+def handle_manage_follows(follower_id, following_id):
     response_body = {}
     if request.method == 'POST':
         follows = Followers(follower_id = follower_id, following_id = following_id)
@@ -369,13 +413,7 @@ def handle_follow(follower_id, following_id):
         db.session.commit()
         response_body['message'] = f"{follower_id} is now following {following_id}"
         return response_body, 200
-    response_body['message'] = "Method not allowed."
-    return response_body, 405
 
-
-@api.route("/unfollow/<int:follower_id>/<int:following_id>", methods=['DELETE'])
-def handle_unfollow(follower_id, following_id):
-    response_body = {}
     if request.method == 'DELETE':
         follows = db.session.execute(db.select(Followers).where(Followers.follower_id == follower_id and Followers.following_id == following_id)).scalar()
         if follows: 
@@ -389,15 +427,11 @@ def handle_unfollow(follower_id, following_id):
     response_body['message'] = "Method not allowed."
     return response_body, 405
 
+# Hasta aquí
 
-@api.route("/settings/<int:user_id>", methods=['GET', 'POST'])
+@api.route("/settings/<int:user_id>", methods=['POST'])
 def handle_user_settings(user_id):
     response_body = {}
-    if request.method == 'GET':
-        user_settings = db.session.execute(db.select(User_settings).where(User_settings.user_id == user_id)).scalars()
-        response_body['results'] = [row.serialize() for row in user_settings]
-        response_body['message'] = 'Settings obtained'
-        return response_body, 200
     if request.method == 'POST':
         data = request.json
         setting = User_settings(user_id = user_id,
@@ -411,15 +445,33 @@ def handle_user_settings(user_id):
     response_body['message'] = "Method not allowed."
     return response_body, 405
 
+@api.route("/settings/<int:user_id>/<int:setting_id>", methods= ['DELETE'])
+def handle_delete_settings(user_id, setting_id):    
+    response_body = {}
+    if request.method == 'DELETE':
+        settings = db.session.execute(db.select(User_settings).where(User_settings.user_id == user_id and User_settings.id == setting_id)).scalar()
+        if settings: 
+            db.session.remove(settings)
+            db.session.commit()
+            response_body['message'] = f"Setting removed"
+            return response_body, 200
+    response_body['message'] = f"No settings found"
+    return response_body, 404
 
-@api.route("/reports", methods=['GET','POST'])
-def handle_reports():
+
+@api.route("/reports", methods=['GET'])
+def handle_reports(user_id):
     response_body = {}
     if request.method == 'GET':
         reports = db.session.execute(db.select(Reports)).scalars()
         response_body['results'] = [row.serialize() for row in reports]
         response_body['message'] = 'Report list obtained'
         return response_body, 200
+    
+
+@api.route("/reports/<int:user_id>", methods=['POST'])
+def handle_create_report(user_id):
+    response_body = {}
     if request.method == 'POST':
         data = request.json
         report = Reports(user_id = user_id,
@@ -436,14 +488,9 @@ def handle_reports():
     return response_body, 405
 
 
-@api.route("/recomendations", methods=['GET', 'POST'])
-def handle_recomendations():
+@api.route("/recomendations/<int:user_id>/<int:movie_id>", methods=['POST'])
+def handle_recomendations(user_id, movie_id):
     response_body = {}
-    if request.method == 'GET':
-        recomendations = db.session.execute(db.select(Recomendations)).scalars()
-        response_body['results'] = [row.serialize() for row in recomendations]
-        response_body['message'] = 'Recomendations obtained'
-        return response_body, 200
     if request.method == 'POST':
         data = request.json
         recommendation = Recommendations(user_id = user_id,
