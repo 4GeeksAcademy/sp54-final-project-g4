@@ -73,6 +73,7 @@ class Users(db.Model):
         return {'id': self.id,
                 'username': self.username,
                 'referral_code': self.referral_code,
+                'referred_by': self.referred_by,
                 'role': self.role,
                 'is_active': self.is_active}
 
@@ -93,7 +94,7 @@ class Movies(db.Model):
     genre = db.Column(db.String(50), unique=False, nullable=True)
     director = db.Column(db.String(100), unique=False, nullable=True)
     trailer_url = db.Column(db.String(255), unique=False, nullable=True)
-    cover = db.Column(db.String(255), unique=False, nullable=True)
+    cover_url = db.Column(db.String(255), unique=False, nullable=True)
     sinopsis = db.Column(db.String , unique=False, nullable=True)
     reviews = db.relationship('Reviews', backref='movie_review', lazy=True)
     recommendations = db.relationship('Recommendations', backref='movie_recomendation', lazy=True)
@@ -114,6 +115,7 @@ class Movies(db.Model):
                 'sinopsis': self.sinopsis,
                 'reviews': [row.serialize() for row in self.reviews],
                 'tags': [row.serialize() for row in self.tags],
+                'recommendations': [row.serialize() for row in self.recommendations],
                 'is_active': self.is_active}
 
 
