@@ -48,7 +48,7 @@ def handle_signup():
         required_data = ['username','email','password']
         for key in required_data:
             if key not in data:
-                response_body = {'message': f"Falta {key} en el body"}
+                response_body['message'] = f"Falta {key} en el body"
                 return response_body, 400
         user = db.session.execute(db.select(Users).filter(Users.username.ilike(data.get('username')))).scalar()
         if user:
@@ -218,7 +218,7 @@ def handle_movie(movie_id):
             response_body['message'] = "Only admins can edit movies."
             return response_body, 401
         data = request.json
-        allowed_attributes = {'title': True,
+        allowed_attributes = {  'title': True,
                                 'release_date': True,
                                 'genre': True,
                                 'director': True,
@@ -266,12 +266,12 @@ def handle_manage_tags(movie_id, tag_id):
     response_body['message'] = "Method not allowed."
     return response_body, 405
 
-## Carlos:
-## Corregido hasta aquí, voy a descansar y despues o mañana sigo.
 
 @api.route("/tags", methods=['GET','POST'])
+@jwt_required(optional=True)
 def handle_tags():
     response_body = {}
+    current_user = get_jwt_identity()
     if request.method == 'GET':
         tags = db.session.execute(db.select(Tags)).scalars()
         response_body['results'] = [row.serialize() for row in tags]
@@ -280,77 +280,100 @@ def handle_tags():
 
     if request.method == 'POST':
         data = request.json
-        tag = Tags(tag_name = data['tag'])
+        if current_user['role'] != 'admin':
+            response_body['message'] = "Only admins can add tags."
+            return response_body, 401
+        required_data = ['tag']
+        for key in required_data:
+            if key not in data:
+                response_body['message'] = f"Falta {key} en el body"
+                return response_body, 400
+        tag = Tags(tag_name = data.get('tag'))
         db.session.add(tag)
         db.session.commit()
-        response_body['message'] = f"{data['tag']} successfully registered"
+        response_body['message'] = f"{data.get('tag')} successfully registered"
         return response_body, 200
     response_body['message'] = "Method not allowed."
     return response_body, 405
 
 
-@api.route("/reviews/<int:user_id>/<int:movie_id>", methods=['GET','POST'])
-def handle_review_user_and_movie_id(user_id, movie_id):
+@api.route("/tags/<int:tag_id>", methods=['PUT'])
+@jwt_required(optional=True)
+def handle_edit_tag(tag_id):
     response_body = {}
-    if request.method == 'GET':
-        review = db.session.execute(db.select(Reviews).where(Reviews.user_id == user_id and Reviews.movie_id == movie_id)).scalar()
-        response_body['results'] = review.serialize()
-        response_body['message'] = f"Review list from user {user_id}, movie {movie_id} obtained"
+    current_user = get_jwt_identity()
+    tag = db.session.execute(db.select(Tags).where(Tags.id == tag_id)).scalar()
+    if current_user['role'] != 'admin':
+        response_body['message'] = "Only admins can add tags."
+        return response_body, 401
+    if request.method == 'PUT':
+        data = request.json
+        allowed_attributes = {'tag_name':True}
+        for key, value in data.items():
+            if hasattr(tag, key) and allowed_attributes.get(key, False):
+                setattr(tag, key, value)
+        db.session.commit()
+        response_body['message'] = f"Tag updated"
         return response_body, 200
+
+
+@api.route("/reviews/<int:movie_id>/<int:user_id>", methods=['GET', 'POST', 'PUT'])
+@jwt_required()
+def handle_review_movie_user(movie_id, user_id):
+    response_body = {}
+    current_user = get_jwt_identity()
+    review = db.session.execute(db.select(Reviews).where(Reviews.user_id == user_id, Reviews.movie_id == movie_id)).scalar()
+    if request.method == 'GET':
+        if review:
+            response_body['message'] = f"Review found"
+            response_body['results'] = review.serialize()
+            return response_body, 200
+        response_body['message'] = f"Review not found"
+        return response_body, 404
 
     if request.method == 'POST':
         data = request.json
+        if review:
+            response_body['message'] = f"Review already exist"
+            return response_body, 401
+        required_data = ['rating', 'review_text']
+        for key in required_data:
+            if key not in data:
+                response_body['message'] = f"Falta {key} en el body"
+                return response_body, 400
         verified_rating = check_rating(data['rating'])
         review = Reviews(
                          rating = verified_rating,
-                         review_text = data['review'],
+                         review_text = data['review_text'],
                          user_id = user_id,
                          movie_id = movie_id,
                          is_active = True)
         db.session.add(review)
         db.session.commit()
         response_body['message'] = f"Review added to user: {user_id} with rating {verified_rating}"
-        response_body['results'] = f"{data['review']}"
+        response_body['results'] = f"{data['review_text']}"
         return response_body, 200
-    response_body['message'] = "Method not allowed."
-    return response_body, 405
-
-# FALTA PUT REVIEWS
-
-@api.route("/reviews/<int:user_id>/<int:review_id>", methods=['PUT'])
-def handle_update_review(user_id, review_id):
-    response_body = {}
-    review = db.session.execute(db.select(Reviews).where(Reviews.id == review_id and Users.id == user_id )).scalar()
-    if not review:
-        response_body['message'] = f"Review not found"
-        return response_body, 404
 
     if request.method == 'PUT':
         data = request.json
-        for key, value in data.items():
-            if hasattr(review, key):
-                setattr(review, key, value)
-        db.session.commit()
-        response_body['message'] = f"Review updated"
-        return response_body, 200
-    response_body['message'] = "Method not allowed."
-    return response_body, 405
-    
-
-
-@api.route("/reviews/movie/<int:movie_id>", methods=['GET'])
-def handle_review_movie_id(movie_id):
-    response_body = {}
-    if request.method == 'GET':
-        reviews = db.session.execute(db.select(Reviews).where(Reviews.movie_id == movie_id)).scalars()
-        response_body['results'] = [row.serialize() for row in reviews]
-        response_body['message'] = f'Review list from movie {movie_id} obtained'
-        return response_body, 200
+        allowed_attributes = {  'rating': True,
+                                'review_text': True,
+                                'is_active': True}
+        if current_user['id'] == review.user_id or current_user['role'] == 'admin':
+            for key, value in data.items():
+                if hasattr(review, key) and allowed_attributes.get(key, False):
+                    setattr(review, key, value)
+            db.session.commit()
+            response_body['message'] = f"Review updated"
+            return response_body, 200
+        response_body['message'] = "wtf are u trying to do?."
+        return response_body, 401
     response_body['message'] = "Method not allowed."
     return response_body, 405
 
 
 @api.route("/playlists/<int:user_id>", methods=['GET','POST'])
+@jwt_required(optional=True)
 def handle_playlists_user_all(user_id):
     response_body = {}
     if request.method == 'GET':
@@ -361,8 +384,26 @@ def handle_playlists_user_all(user_id):
 
     if request.method == 'POST':
         data = request.json
+        playlist = db.session.execute(db.select(Playlists).where(Playlists.user_id == user_id, Playlists.name == data.get('name'))).scalar()
+        print(playlist)
+        if playlist:
+            response_body['message'] = f"Playlist already exist"
+            response_body['results'] = playlist.serialize()
+            return response_body, 401
+        required_data = ['name']
+        for key in required_data:
+            if key not in data:
+                response_body['message'] = f"Falta {key} en el body"
+                return response_body, 400
         playlist = Playlists(name = data['name'],
                              user_id = user_id)
+        db.session.add(playlist)
+        db.session.commit()
+        response_body['message'] = f"Playlist {data.get('name')} added"
+        return response_body, 200
+
+    if request.method == 'POST':
+        data = request.json
         db.session.add(playlist)
         db.session.commit()
         response_body['message'] = f"Playlist {data['name']} successfully added"
@@ -376,13 +417,14 @@ def handle_playlists_user_all(user_id):
 def handle_playlists_user_playlist(user_id, playlist_id):
     response_body = {}
     if request.method == 'GET':
-        playlist = db.session.execute(db.select(Playlists).where(Playlists.user_id == user_id and Playlist.id == playlist_id)).scalar()
+        playlist = db.session.execute(db.select(Playlists).where(Playlists.user_id == user_id, Playlist.id == playlist_id)).scalar()
         response_body['results'] = playlist.serialize()
         response_body['message'] = 'Playlists obtained'
         return response_body, 200
     response_body['message'] = "Method not allowed."
     return response_body, 405
 
+## <-- Continue from here
 
 @api.route("/playlists/<int:playlist_id>/managemovies/<int:movie_id>", methods=['POST', 'DELETE'])
 def handle_manage_movies_to_playlist(playlist_id, movie_id):

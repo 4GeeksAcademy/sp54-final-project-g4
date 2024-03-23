@@ -111,7 +111,7 @@ class Movies(db.Model):
                 'genre': self.genre,
                 'director': self.director,
                 'trailer_url': self.trailer_url,
-                'cover': self.cover,
+                'cover_url': self.cover_url,
                 'sinopsis': self.sinopsis,
                 'reviews': [row.serialize() for row in self.reviews],
                 'tags': [row.serialize() for row in self.tags],
