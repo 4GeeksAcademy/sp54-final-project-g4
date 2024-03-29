@@ -86,20 +86,20 @@ def login():
         if email:
             email_lowercase = email.lower() # Tratamos el email para no tener problemas con las mayúsculas.
             user = db.session.execute(db.select(Users).filter(Users.email.ilike(email))).scalar()
-        if user:
-            if user.is_active:
-                password = request.json.get("password", None)
-                if bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
-                    access_token = create_access_token(identity=user.serialize_public())
-                    response_body["message"] = f"User logged correctly"
-                    response_body["access_token"] = access_token
-                    response_body["results"] = user.serialize_public()
-                    return response_body, 200
-                response_body["message"] = "Incorrect password."
-                return response_body, 401
+        if not user:
+            response_body["message"] = "User is not registered."
+            return response_body, 401
+        if not user.is_active:
             response_body["message"] = "Account is inactive"
             return response_body, 401
-        response_body["message"] = "User is not registered."
+        password = request.json.get("password", None)
+        if bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
+            access_token = create_access_token(identity=user.serialize_public())
+            response_body["message"] = f"User logged correctly"
+            response_body["access_token"] = access_token
+            response_body["results"] = user.serialize_public()
+            return response_body, 200
+        response_body["message"] = "Incorrect password."
         return response_body, 401
     response_body['message'] = "Method not allowed."
     return response_body, 405
@@ -144,17 +144,18 @@ def handle_users_info(username):
                                   'credits': current_user['role'] == 'admin',
                                   'role': current_user['role'] == 'admin',
                                   'is_active': True}
-            if current_user['username'] == user.username or current_user['role'] == 'admin':
-                for key, value in data.items():
-                    if hasattr(user, key) and allowed_attributes.get(key, False):
-                        if key == 'password':
-                            value = encrypt_password(value)
-                        setattr(user, key, value)
-                db.session.commit()
-                response_body['message'] = f"{username} updated"
-                return response_body, 200
-            response_body['message'] = "wtf are u trying to do?."
-            return response_body, 401
+            if not (current_user['username'] == user.username) and not (current_user['role'] == 'admin'):
+                response_body['message'] = f"You have no permissions to do that!"
+                return response_body, 401
+
+            for key, value in data.items():
+                if hasattr(user, key) and allowed_attributes.get(key, False):
+                    if key == 'password':
+                        value = encrypt_password(value)
+                    setattr(user, key, value)
+            db.session.commit()
+            response_body['message'] = f"{username} updated"
+            return response_body, 200
         response_body['message'] = "Token is required to edit user's info"
         return response_body, 401
     response_body['message'] = "Method not allowed."
@@ -359,15 +360,15 @@ def handle_review_movie_user(movie_id, user_id):
         allowed_attributes = {  'rating': True,
                                 'review_text': True,
                                 'is_active': True}
-        if current_user['id'] == review.user_id or current_user['role'] == 'admin':
-            for key, value in data.items():
-                if hasattr(review, key) and allowed_attributes.get(key, False):
-                    setattr(review, key, value)
-            db.session.commit()
-            response_body['message'] = f"Review updated"
-            return response_body, 200
-        response_body['message'] = "wtf are u trying to do?."
-        return response_body, 401
+        if not (current_user['id'] == review.user_id) and not (current_user['role'] == 'admin'):
+            response_body['message'] = f"You have no permissions to do that!"
+            return response_body, 401
+        for key, value in data.items():
+            if hasattr(review, key) and allowed_attributes.get(key, False):
+                setattr(review, key, value)
+        db.session.commit()
+        response_body['message'] = f"Review updated"
+        return response_body, 200
     response_body['message'] = "Method not allowed."
     return response_body, 405
 
@@ -385,7 +386,6 @@ def handle_playlists_user_all(user_id):
     if request.method == 'POST':
         data = request.json
         playlist = db.session.execute(db.select(Playlists).where(Playlists.user_id == user_id, Playlists.name == data.get('name'))).scalar()
-        print(playlist)
         if playlist:
             response_body['message'] = f"Playlist already exist"
             response_body['results'] = playlist.serialize()
@@ -412,187 +412,267 @@ def handle_playlists_user_all(user_id):
     return response_body, 405
 
 
-
-@api.route("/playlists/<int:user_id>/<int:playlist_id>", methods=['GET'])
-def handle_playlists_user_playlist(user_id, playlist_id):
-    response_body = {}
-    if request.method == 'GET':
-        playlist = db.session.execute(db.select(Playlists).where(Playlists.user_id == user_id, Playlist.id == playlist_id)).scalar()
-        response_body['results'] = playlist.serialize()
-        response_body['message'] = 'Playlists obtained'
-        return response_body, 200
-    response_body['message'] = "Method not allowed."
-    return response_body, 405
-
-## <-- Continue from here
-
 @api.route("/playlists/<int:playlist_id>/managemovies/<int:movie_id>", methods=['POST', 'DELETE'])
-def handle_manage_movies_to_playlist(playlist_id, movie_id):
+@jwt_required()
+def handle_manage_movies_in_playlist(playlist_id, movie_id):
     response_body = {}
+    current_user = get_jwt_identity()
+    playlist = db.session.execute(db.select(Playlists).where(Playlists.id == playlist_id)).scalar()
+    if not (current_user['id'] == playlist.user_id) and not (current_user['role'] == 'admin'):
+        response_body['message'] = f"You have no permissions to do that!"
+        return response_body, 401
+
+    movie = db.session.execute(db.select(Movies).where(Movies.id == movie_id)).scalar()
     if request.method == 'POST':
-        playlist = db.session.execute(db.select(Playlists).where(Playlists.id == playlist_id)).scalar()
-        movie = db.session.execute(db.select(Movies).where(Movies.id == movie_id)).scalar()
-        playlist.movies.append(movie)
-        db.session.commit()
-        response_body['message'] = f"Movie {movie_id} successfully added to {playlist_id}"
-        return response_body, 200
+        if not (movie in playlist.movies):
+            playlist.movies.append(movie)
+            db.session.commit()
+            response_body['message'] = f"Movie {movie_id} successfully added to {playlist_id}"
+            return response_body, 200
+        response_body['message'] = f"Movie {movie_id} is already in {playlist_id}"
+        return response_body, 400
 
     if request.method == 'DELETE':
-        playlist = db.session.execute(db.select(Playlists).where(Playlists.id == playlist_id)).scalar()
-        movie = db.session.execute(db.select(Movies).where(Movies.id == movie_id)).scalar()
-        playlist.movies.remove(movie)
-        db.session.commit()
-        response_body['message'] = f"Movie {movie_id} successfully removed to {playlist_id}"
-        return response_body, 200
+        if movie in playlist.movies:
+            playlist.movies.remove(movie)
+            db.session.commit()
+            response_body['message'] = f"Movie {movie_id} successfully removed from {playlist_id}"
+            return response_body, 200
+        response_body['message'] = f"Movie {movie_id} not found in {playlist_id}"
+        return response_body, 404
     response_body['message'] = "Method not allowed."
     return response_body, 405
 
 
-# Borrar notis
-@api.route("/notifications/<int:user_id>", methods=['GET', 'POST'])
-def handle_notifications(user_id):
+@api.route("/notifications/<int:user_id>", methods=['GET','POST'])
+@jwt_required()
+def handle_get_notifications(user_id):
     response_body = {}
+    current_user = get_jwt_identity()
+    if not (current_user['id'] == user_id) and not (current_user['role'] == 'admin'):
+        response_body['message'] = f"You have no permissions to do that!"
+        return response_body, 401
+
     if request.method == 'GET':
         notifications = db.session.execute(db.select(Notifications).where(Notifications.user_id == user_id)).scalars()
-        response_body['results'] = [row.serialize() for row in notifications]
-        response_body['message'] = "Notifications obtained"
-        return response_body, 200     
+        if not notifications:
+            response_body['message'] = "No notifications found."
+            return response_body, 404
+        response_body['results'] = [row.serialize() for row in notifications_query_result]
+        response_body['message'] = 'Notifications obtained'
+        return response_body, 200
 
     if request.method == 'POST':
         data = request.json
-        notification = Notifications(
-            notification_text = data['notification'],
-            user_id = user_id)
-        db.session.add(notification)
+        required_data = ['notification_text']
+        for key in required_data:
+            if key not in data:
+                response_body['message'] = f"Falta {key} en el body"
+                return response_body, 400
+        if not (current_user['role'] == 'admin'):
+            response_body['message'] = f"You have no permissions to do that!"
+            return response_body, 401
+        new_notification = Notifications(notification_text = data['notification_text'], user_id = user_id)
+        db.session.add(new_notification)
         db.session.commit()
-        response_body['message'] = "Notification successfully registered"
-        response_body['results'] = f"({data['notification']}) added to user: {user_id}"
+        response_body['message'] = f"Notification successfully added"
         return response_body, 200
     response_body['message'] = "Method not allowed."
     return response_body, 405
 
 
-@api.route("/followers/<int:user_id>", methods=['GET'])
-def handle_followers(user_id):
+@api.route("/notifications/<int:user_id>/<notification_id>", methods=['DELETE'])
+@jwt_required()
+def handle_manage_notifications(user_id, notification_id):
     response_body = {}
-    if request.method == 'GET':
-        followers = db.session.execute(db.select(Followers).where(Followers.following_id == user_id)).scalars()
-        response_body['results'] = [row.serialize() for row in followers]
-        response_body['message'] = f"Followers from {user_id} obtained"
+    current_user = get_jwt_identity()
+    if not (current_user['id'] == user_id) and not (current_user['role'] == 'admin'):
+        response_body['message'] = f"You have no permissions to do that!"
+        return response_body, 401
+
+    notification = db.session.execute(db.select(Notifications).where(Notifications.user_id == user_id, Notifications.id == notification_id)).scalar()
+    if not notification:
+        response_body['message'] = f"Notification not found"
+        return response_body, 404
+
+    if request.method == 'DELETE':
+        db.session.delete(notification)
+        db.session.commit()
+        response_body['message'] = f"Notification successfully deleted"
         return response_body, 200
     response_body['message'] = "Method not allowed."
     return response_body, 405
 
 
-@api.route("/following/<int:user_id>", methods=['GET'])
-def handle_following(user_id):
-    response_body = {}
-    if request.method == 'GET':
-        followers = db.session.execute(db.select(Followers).where(Followers.follower_id == user_id)).scalars()
-        response_body['results'] = [row.serialize() for row in followers]
-        response_body['message'] = f"{user_id} follows:"
-        return response_body, 200
-    response_body['message'] = "Method not allowed."
-    return response_body, 405
-
-# Juntar ambos endpoints 
 @api.route("/managefollows/<int:follower_id>/<int:following_id>", methods=['POST', 'DELETE'])
+@jwt_required()
 def handle_manage_follows(follower_id, following_id):
     response_body = {}
+    current_user = get_jwt_identity()
+    user = db.session.execute(db.select(Users).where(Users.id == current_user['id'])).scalar()
+    if not (current_user['id'] == follower_id) and not (current_user['role'] == 'admin'):
+        response_body['message'] = f"You have no permissions to do that!"
+        return response_body, 401
+
+    follower = db.session.execute(db.select(Users).where(Users.id == follower_id)).scalar()
+    if not follower:
+        response_body['message'] = f"The 'follower' user doesn't exist!"
+        return response_body, 404
+    following = db.session.execute(db.select(Users).where(Users.id == following_id)).scalar()
+    if not following:
+        response_body['message'] = f"The 'following' user doesn't exist!"
+        return response_body, 404
     if request.method == 'POST':
         follows = Followers(follower_id = follower_id, following_id = following_id)
         db.session.add(follows)
         db.session.commit()
         response_body['message'] = f"{follower_id} is now following {following_id}"
         return response_body, 200
-
+    
     if request.method == 'DELETE':
-        follows = db.session.execute(db.select(Followers).where(Followers.follower_id == follower_id and Followers.following_id == following_id)).scalar()
-        if follows: 
-            print(follows)
-            db.session.remove(follows)
-            db.session.commit()
-            response_body['message'] = f"{follower_id} is now not following {following_id} :("
-            return response_body, 200
-        response_body['message'] = f"{follower_id} is not following {following_id}"
-        return response_body, 404
-    response_body['message'] = "Method not allowed."
-    return response_body, 405
-
-# Hasta aquí
-
-@api.route("/settings/<int:user_id>", methods=['POST'])
-def handle_user_settings(user_id):
-    response_body = {}
-    if request.method == 'POST':
-        data = request.json
-        setting = User_settings(user_id = user_id,
-                                setting_name = data['setting_name'],
-                                setting_value = data['setting_value'])
-        db.session.add(setting)
+        follows = db.session.execute(db.select(Followers).where(Followers.follower_id == follower_id)).scalar()
+        db.session.delete(follows)
         db.session.commit()
-        response_body['message'] = "Changes updated"
-        response_body['results'] = f"Changes added to user: {user_id}"
+        response_body['message'] = f"{follower_id} is now not following {following_id}"
         return response_body, 200
     response_body['message'] = "Method not allowed."
     return response_body, 405
 
-@api.route("/settings/<int:user_id>/<int:setting_id>", methods= ['DELETE'])
-def handle_delete_settings(user_id, setting_id):    
+
+@api.route("/settings/<int:user_id>/<string:setting_name>", methods=['POST', 'PUT', 'DELETE'])
+@jwt_required()
+def handle_user_settings(user_id, setting_name):
     response_body = {}
+    current_user = get_jwt_identity()
+    if request.method == 'POST':
+        if not (current_user['role'] == 'admin'):
+            response_body['message'] = f"Only administrators can add settings, nice try tho..."
+            return response_body, 401
+        setting = db.session.execute(db.select(User_settings).filter(User_settings.setting_name.ilike(setting_name))).scalar()
+        if setting:
+            response_body['message'] = f"Setting already exists, cannot create"
+            return response_body, 400
+        data = request.json
+        required_data = ['setting_value']
+        for key in required_data:
+            if key not in data:
+                response_body['message'] = f"Falta {key} en el body"
+                return response_body, 400
+        setting = User_settings(user_id = user_id,
+                                setting_name = setting_name,
+                                setting_value = data['setting_value'])
+        db.session.add(setting)
+        db.session.commit()
+        response_body['message'] = f"Setting added to user: {user_id}"
+        return response_body, 200
+    
     if request.method == 'DELETE':
-        settings = db.session.execute(db.select(User_settings).where(User_settings.user_id == user_id and User_settings.id == setting_id)).scalar()
-        if settings: 
-            db.session.remove(settings)
-            db.session.commit()
-            response_body['message'] = f"Setting removed"
-            return response_body, 200
-    response_body['message'] = f"No settings found"
-    return response_body, 404
+        if not (current_user['role'] == 'admin'):
+            response_body['message'] = f"Only administrators can remove settings, nice try tho..."
+            return response_body, 401
+        setting = db.session.execute(db.select(User_settings).filter(User_settings.setting_name.ilike(setting_name))).scalar()
+        if not setting:
+            response_body['message'] = f"Setting doesn't exist"
+            return response_body, 400
+        db.session.delete(setting)
+        db.session.commit()
+        response_body['message'] = f"Setting removed to user: {user_id}"
+        return response_body, 200
+
+    if request.method == 'PUT':
+        if not (current_user['id'] == user_id) and not (current_user['role'] == 'admin'):
+            response_body['message'] = f"You have no permissions to do that!"
+            return response_body, 401
+        setting = db.session.execute(db.select(User_settings).filter(User_settings.setting_name.ilike(setting_name))).scalar()
+        if not setting:
+            response_body['message'] = f"Setting doesn't exists, cannot edit"
+            return response_body, 400
+        allowed_attributes = {  'setting_name': current_user['role'] == 'admin',
+                                'setting_value': True}
+        data = request.json
+        required_data = ['setting_value']
+        for key in required_data:
+            if key not in data:
+                response_body['message'] = f"Falta {key} en el body"
+                return response_body, 400
+        for key, value in data.items():
+            if hasattr(setting, key) and allowed_attributes.get(key, False):
+                setattr(setting, key, value)
+        db.session.commit()
+        response_body['message'] = "Setting updated"
+        return response_body, 405
+    response_body['message'] = "Method not allowed."
+    return response_body, 405
 
 
 @api.route("/reports", methods=['GET'])
-def handle_reports(user_id):
+@jwt_required()
+def handle_reports():
+    current_user = get_jwt_identity()
+    if not (current_user['role'] == 'admin'):
+        response_body['message'] = f"You have no permissions to do that!"
+        return response_body, 401
     response_body = {}
     if request.method == 'GET':
         reports = db.session.execute(db.select(Reports)).scalars()
         response_body['results'] = [row.serialize() for row in reports]
-        response_body['message'] = 'Report list obtained'
+        response_body['message'] = "Report list obtained"
         return response_body, 200
     
 
-@api.route("/reports/<int:user_id>", methods=['POST'])
-def handle_create_report(user_id):
+@api.route("/reports/<int:id>", methods=['GET', 'POST', 'PUT'])
+@jwt_required()
+def handle_create_report(id):
     response_body = {}
+    current_user = get_jwt_identity()
+    if request.method == 'GET':
+        if not (current_user['role'] == 'admin'):
+            response_body['message'] = f"You have no permissions to do that!"
+            return response_body, 401
+        reports_users = db.session.execute(db.select(Reports).where(Reports.reported_user_id == id)).scalars()
+        reports_movies = db.session.execute(db.select(Reports).where(Reports.reported_movie_id == id)).scalars()
+        response_body['results'] = {}
+        response_body['results'][f"user reports with id {id}"] = [row.serialize() for row in reports_users]
+        response_body['results'][f"movie reports with id {id}"] = [row.serialize() for row in reports_movies]
+        response_body['message'] = f"Report list obtained"
+        return response_body, 200
+
     if request.method == 'POST':
         data = request.json
-        report = Reports(user_id = user_id,
+        required_data = ['reason']
+        for key in required_data:
+            if key not in data:
+                response_body['message'] = f"Falta {key} en el body"
+                return response_body, 400
+        report = Reports(user_id = current_user['id'],
                          reason = data.get('reason'),
-                         reported_user_id = data.get('reported_user', None),
-                         reported_movie_id = data.get('reported_movie', None),
+                         reported_user_id = data.get('reported_user_id', None),
+                         reported_movie_id = data.get('reported_movie_id', None),
                          resolver_id = None)
         db.session.add(report)
         db.session.commit()
-        response_body['message'] = "Changes updated"
-        response_body['results'] = f"Report send"
+        response_body['message'] = "Report saved"
         return response_body, 200
-    response_body['message'] = "Method not allowed."
-    return response_body, 405
 
-
-@api.route("/recomendations/<int:user_id>/<int:movie_id>", methods=['POST'])
-def handle_recomendations(user_id, movie_id):
-    response_body = {}
-    if request.method == 'POST':
+    if request.method == 'PUT':
+        if not (current_user['role'] == 'admin'):
+            response_body['message'] = f"You have no permissions to do that!"
+            return response_body, 401
+        report = db.session.execute(db.select(Reports).where(Reports.id == id)).scalar()
         data = request.json
-        recommendation = Recommendations(user_id = user_id,
-                                         recommendation_text = data.get('recommendation_text'),
-                                         movie_id = movie_id
-                                        )
-        db.session.add(recommendation)
+        required_data = ['resolved']
+        allowed_attributes = {'resolver_id': True,
+                              'resolved': True}
+        for key in required_data:
+            if key not in data:
+                response_body['message'] = f"Falta {key} en el body"
+                return response_body, 400
+        for key, value in data.items():
+            if hasattr(report, key) and allowed_attributes.get(key, False):
+                setattr(report, key, value)
+        report.resolver_id = current_user['id']
         db.session.commit()
-        response_body['message'] = "Changes updated"
-        response_body['results'] = f"Report send"
+        response_body['message'] = "Report saved"
         return response_body, 200
     response_body['message'] = "Method not allowed."
     return response_body, 405
