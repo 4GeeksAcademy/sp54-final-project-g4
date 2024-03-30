@@ -2,10 +2,97 @@ import React from "react";
 
 
 export const Footer = () => (
-  <footer className="footer mt-auto py-3 text-center">
-    <p>
-      Made with <i className="fa fa-heart text-danger" /> by{" "}
-      <a href="http://www.4geeksacademy.com">4Geeks Academy</a>
-    </p>
+  <footer className="footer mt-auto py-3 text-center bg-dark bg-gradient">
+    {/* <section className="d-flex justify-content-center justify-content-lg-between p-4 border-bottom">
+      <div className="me-5 d-none d-lg-block">
+        <span>Get connect with us!</span>
+      </div>
+
+      <div>
+        <a href='' className='me-4 text-reset'>
+          
+        </a>
+        <a href='' className='me-4 text-reset'>
+          
+        </a>
+        <a href='' className='me-4 text-reset'>
+          
+        </a>
+      </div>
+    </section> */}
+
+    <section>
+      <div className="container text-center mt-5">
+        <div className="row d-flex justify-content-center alignt-items-center">
+
+          <div className="col mx-auto mb-2"> {/* Nombre compañia */}
+            <h6 className="text-uppercase fw-bold mb-4 text-light text-decoration-underline">Company Name</h6>
+            <span className="fs-6 fw-bold text-light"> &copy; Star-Trail</span>
+          </div>
+
+          <div className="col mx-auto mb-2"> {/* Links utiles */}
+
+            <h6 className="text-uppercase fw-bold mb-4 text-light text-decoration-underline">Useful links</h6>
+
+            <div className="d-flex flex-column">
+
+              <a href='' className='text-reset mb-2'>
+                <span className="ms-1 text-light">
+                  Place-Holder
+                </span>
+              </a>
+
+              <a href='' className='text-reset mb-2'>
+                <span className="ms-1 text-light">
+                  Place-Holder
+                </span>
+              </a>
+
+              <a href='' className='text-reset'>
+                <span className="ms-1 text-light">
+                  Place-Holder
+                </span>
+              </a>
+
+            </div>
+          </div>
+
+          <div className="col mx-auto mb-2"> {/* Datos de Contacto */}
+
+            <h6 className="text-uppercase fw-bold mb-2 text-light text-decoration-underline">Contact</h6>
+
+            <div className="d-flex flex-column">
+              <a href='https://github.com/xXcarlos117Xx2' className='text-reset mb-2'>
+                <i className="fab fa-github" style={{ color: "#ffffff" }}></i>
+                <span className="ms-1 text-light">
+                  Carlos Atanes
+                </span>
+              </a>
+
+              <a href='https://github.com/JockerAG' className='text-reset mb-2'>
+                <i className="fab fa-github" style={{ color: "#ffffff" }}></i>
+                <span className="ms-1 text-light">
+                  Alfredo Márquez
+                </span>
+              </a>
+
+              <a href='https://github.com/AnnieRoro' className='text-reset'>
+                <i className="fab fa-github" style={{ color: "#ffffff" }}></i>
+                <span className="ms-1 text-light">
+                  Annie Roldán
+                </span>
+              </a>
+
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <div className="text-center p-4 text-light text-decoration-underline">
+      <p>&copy; 2024 Copyright: Star-Trail</p>
+    </div>
   </footer>
 );

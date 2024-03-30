@@ -4,7 +4,7 @@ import injectContext from "./store/appContext.js";
 // Import custom component
 import ScrollToTop from "./component/scrollToTop.js";
 import { BackendURL } from "./component/BackendURL.jsx";
-
+import { Navigation } from "./component/Navigation.jsx";
 import { Footer } from "./component/Footer.jsx";
 // Import custom pages
 import { Home } from "./pages/Home.jsx";

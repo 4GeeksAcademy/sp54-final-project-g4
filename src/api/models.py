@@ -21,8 +21,8 @@ playlist_movies = db.Table('playlist_movies',
     db.Column('movie_id', db.Integer, db.ForeignKey('movies.id'), primary_key=True)
 )
 
-# Tablas
 
+# Tablas
 class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False)
@@ -42,7 +42,7 @@ class Users(db.Model):
     reported_reports = db.relationship('Reports', backref='user_reported_in', lazy=True, foreign_keys=('Reports.reported_user_id') )
     resolved_reports = db.relationship('Reports', backref='resolved_by', lazy=True, foreign_keys=('Reports.resolver_id'))
     followers = db.relationship('Followers', backref='follower', foreign_keys=('Followers.follower_id'), lazy=True)
-    followings = db.relationship('Followers', backref='following', foreign_keys=('Followers.followed_id'), lazy=True)
+    followings = db.relationship('Followers', backref='following', foreign_keys=('Followers.following_id'), lazy=True)
     settings = db.relationship('User_settings', backref='user', lazy=True)
 
     def __repr__(self):
@@ -56,18 +56,35 @@ class Users(db.Model):
                 'referral_code': self.referral_code,
                 'role': self.role,
                 'referred_by': self.referred_by,
-                'recommendations': self.recommendations,
-                'favorite_movies': self.favorite_movies,
-                'reviews': self.reviews,
-                'playlist': self.playlist,
-                'notifications': self.notifications,
-                'followers': self.followers,
-                'followings': self.followings,
-                'settings': self.settings,
-                'reports': self.reports,
-                'reported_reports': self.reported_reports,
-                'resolved_reports': self.resolved_reports,
+                'recommendations': [row.serialize() for row in self.recommendations],
+                'favorite_movies': [row.serialize() for row in self.favorite_movies],
+                'reviews': [row.serialize() for row in self.reviews],
+                'playlist': [row.serialize() for row in self.playlist],
+                'notifications': [row.serialize() for row in self.notifications],
+                'followers': [row.serialize() for row in self.followers],
+                'followings': [row.serialize() for row in self.followings],
+                'settings': [row.serialize() for row in self.settings],
+                'reports': [row.serialize() for row in self.reports],
+                'reported_reports': [row.serialize() for row in self.reported_reports],
+                'resolved_reports': [row.serialize() for row in self.resolved_reports],
                 'is_active': self.is_active}
+    
+    def serialize_public(self):
+        return {'id': self.id,
+                'username': self.username,
+                'referral_code': self.referral_code,
+                'referred_by': self.referred_by,
+                'role': self.role,
+                'is_active': self.is_active}
+
+    def serialize_followers(self):
+        return {'id': self.id,
+                'username': self.username,
+                'referral_code': self.referral_code,
+                'role': self.role,
+                'is_active': self.is_active,
+                'followers': [row.serialize() for row in self.followers],
+                'followings': [row.serialize() for row in self.followings]}
 
 
 class Movies(db.Model):
@@ -77,7 +94,7 @@ class Movies(db.Model):
     genre = db.Column(db.String(50), unique=False, nullable=True)
     director = db.Column(db.String(100), unique=False, nullable=True)
     trailer_url = db.Column(db.String(255), unique=False, nullable=True)
-    cover = db.Column(db.String(255), unique=False, nullable=True)
+    cover_url = db.Column(db.String(255), unique=False, nullable=True)
     sinopsis = db.Column(db.String , unique=False, nullable=True)
     reviews = db.relationship('Reviews', backref='movie_review', lazy=True)
     recommendations = db.relationship('Recommendations', backref='movie_recomendation', lazy=True)
@@ -94,9 +111,11 @@ class Movies(db.Model):
                 'genre': self.genre,
                 'director': self.director,
                 'trailer_url': self.trailer_url,
-                'cover': self.cover,
+                'cover_url': self.cover_url,
                 'sinopsis': self.sinopsis,
-                'tags': self.tags,
+                'reviews': [row.serialize() for row in self.reviews],
+                'tags': [row.serialize() for row in self.tags],
+                'recommendations': [row.serialize() for row in self.recommendations],
                 'is_active': self.is_active}
 
 
@@ -149,7 +168,7 @@ class Playlists(db.Model):
         return {'id': self.id,
                 'name': self.name,
                 'user_id': self.user_id,
-                'movies': self.movies}
+                'movies': [row.serialize() for row in self.movies]}
 
 
 class Notifications(db.Model):
@@ -171,15 +190,15 @@ class Notifications(db.Model):
 class Followers(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     follower_id = db.Column(db.Integer, db.ForeignKey('users.id'), unique=False, nullable=False)
-    followed_id = db.Column(db.Integer, db.ForeignKey('users.id'), unique=False, nullable=False)
+    following_id = db.Column(db.Integer, db.ForeignKey('users.id'), unique=False, nullable=False)
 
     def __repr__(self):
-        return f'<Follower: {self.id} - seguidores: {self.follower_id} - seguidos: {self.followed_id}>'
+        return f'<Follower: {self.id} - seguidores: {self.follower_id} - seguidos: {self.following_id}>'
 
     def serialize(self):
         return {'id': self.id,
                 'follower_id': self.follower_id,
-                'followed_id': self.followed_id}
+                'following_id': self.following_id}
 
 
 class User_settings(db.Model):
@@ -203,10 +222,10 @@ class Reports(db.Model):
     reason = db.Column(db.String , unique=False, nullable=False)
     timestamp = db.Column(db.DateTime, unique=False, nullable=False, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), unique=False, nullable=False)
-    reported_user_id = db.Column(db.Integer, db.ForeignKey('users.id'), unique=False, nullable=False)
+    reported_user_id = db.Column(db.Integer, db.ForeignKey('users.id'), unique=False, nullable=True)
     reported_movie_id = db.Column(db.Integer, db.ForeignKey('movies.id'), unique=False, nullable=True)
     resolved = db.Column(db.Boolean, default=False)
-    resolver_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    resolver_id = db.Column(db.Integer, db.ForeignKey('users.id'), unique=False, nullable=True)
 
     def __repr__(self):
         return f'<Report: {self.id} - usuario: {self.user_id} - {self.timestamp} - pelicula reportada: {self.reported_movie_id} - usuario reportado: {self.reported_user_id}>'
