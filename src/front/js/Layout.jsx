@@ -10,6 +10,7 @@ import { Footer } from "./component/Footer.jsx";
 import { Home } from "./pages/Home.jsx";
 import { Demo } from "./pages/Demo.jsx";
 import { Single } from "./pages/Single.jsx";
+import { Navigation } from "./component/Navbar.jsx";
 
 
 // Create your first component
