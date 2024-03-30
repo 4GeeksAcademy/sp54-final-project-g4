@@ -2,14 +2,20 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 import os
+
+from datetime import timedelta
+
 from flask import Flask, request, jsonify, url_for, send_from_directory
 from flask_migrate import Migrate
 from flask_swagger import swagger
+
 from api.utils import APIException, generate_sitemap
 from api.routes import api
 from api.admin import setup_admin
 from api.commands import setup_commands
 from api.models import db
+
+from flask_jwt_extended import JWTManager
 
 
 ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
@@ -30,6 +36,11 @@ setup_admin(app)  # Add the admin
 setup_commands(app)  # Add the admin
 # Add all endpoints form the API with a "api" prefix
 app.register_blueprint(api, url_prefix='/api')
+
+# Setup the Flask-JWT-Extended extension
+app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SEED")
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=24)
+jwt = JWTManager(app)
 
 
 # Handle/serialize errors like a JSON object

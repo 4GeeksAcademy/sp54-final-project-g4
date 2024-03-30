@@ -4,14 +4,14 @@ import injectContext from "./store/appContext.js";
 // Import custom component
 import ScrollToTop from "./component/scrollToTop.js";
 import { BackendURL } from "./component/BackendURL.jsx";
-import { Navbar } from "./component/Navbar.jsx";
+import { Navigation } from "./component/Navigation.jsx";
 import { Footer } from "./component/Footer.jsx";
 // Import custom pages
 import { Home } from "./pages/Home.jsx";
 import { Demo } from "./pages/Demo.jsx";
 import { Single } from "./pages/Single.jsx";
+import { Navigation } from "./component/Navigation.jsx";
 import { Profile } from "./pages/Profile.jsx";
-
 
 // Create your first component
 const Layout = () => {
@@ -24,7 +24,7 @@ const Layout = () => {
         <div>
             <BrowserRouter basename={basename}>
                 <ScrollToTop>
-                    <Navbar />
+                    <Navigation />
                     <Routes>
                         <Route element={<Home />} path="/" />
                         <Route element={<Demo />} path="/demo" />
