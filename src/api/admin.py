@@ -18,3 +18,4 @@ def setup_admin(app):
     admin.add_view(ModelView(User_settings, db.session))
     admin.add_view(ModelView(Reports, db.session))
     admin.add_view(ModelView(Recommendations, db.session))
+    admin.add_view(ModelView(Followers, db.session))
