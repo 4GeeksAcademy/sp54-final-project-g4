@@ -11,7 +11,6 @@ export const Signup = () => {
         username: '',
         email: '',
         password: '',
-        avatar_url: ''
     })
 
     const handleInputChange = (event) => {
@@ -22,7 +21,6 @@ export const Signup = () => {
         event.preventDefault();
         if (confirmPassword === formData.password) {
             actions.signup(formData)
-            alert('[PH] Registration Succesful!')
             actions.showModalSignup(false)
         } else {
             alert("Passwords doesn't match")
@@ -30,6 +28,7 @@ export const Signup = () => {
     }
 
     const handleCancel = () => {
+        setFormData({username: '', email: '', password: ''})
         actions.showModalSignup(false)
     }
     
@@ -54,14 +53,6 @@ export const Signup = () => {
                 <Form.Group className="my-3" controlId="formBasicConfirmPassword">
                     <Form.Label>Confirm Password *</Form.Label>
                     <Form.Control type="password" placeholder="Confirm Password" name='confirmPassword' value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
-                </Form.Group>
-
-                <Form.Group className="my-3" controlId="formBasicImage">
-                    <Form.Label>Avatar URL</Form.Label>
-                    <Form.Control type="text" placeholder="http://www.url-image.com" name='avatar_url' value={formData.avatar_url} onChange={(e) => handleInputChange(e)} />
-                    <Form.Text className="text-muted">
-                        Leave blank for placeholder
-                    </Form.Text>
                 </Form.Group>
 
                 <Form.Group className="text-center mt-5">

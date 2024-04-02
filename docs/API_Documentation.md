@@ -10,11 +10,9 @@ The base URL for all endpoints is `{{base_url}}`.
 
 This API uses bearer token authentication. To authenticate, include your token in the `Authorization` header with the format `Bearer {{token}}`.
 
-## Endpoints
+## /login and /signup
 
-### /login and /signup
-
-#### POST /api/signup
+### POST /api/signup
 
 This endpoint is used to sign up a new user.
 
@@ -29,7 +27,7 @@ This endpoint is used to sign up a new user.
 }
 ```
 
-#### POST /api/login
+### POST /api/login
 
 This endpoint is used to log in a user. Username or Email should be added. If both are given, email is priority. Frontend should allow only one to be send.
 
@@ -43,17 +41,17 @@ This endpoint is used to log in a user. Username or Email should be added. If bo
 }
 ```
 
-### /users/<username>
+## /users/<username>
 
-#### GET /api/users
+### GET /api/users
 
 This endpoint gets the users list. If the user role is admin, the user_list will contain more data.
 
-#### GET /api/users/username
+### GET /api/users/username
 
 This endpoint gets users profile information. If the user role is admin or is the own user, the user_list will contain more data.
 
-#### PUT /api/users/username
+### PUT /api/users/username
 
 This endpoint edits a user's profile information. If the user role is admin, more data can be edited.
 
@@ -70,13 +68,13 @@ This endpoint edits a user's profile information. If the user role is admin, mor
 }
 ```
 
-### /movies
+## /movies
 
-#### GET /api/movies
+### GET /api/movies
 
 This endpoint gets the movies list.
 
-#### POST /api/movies
+### POST /api/movies
 
 This endpoint registers a new movie.
 
@@ -94,13 +92,13 @@ This endpoint registers a new movie.
 }
 ```
 
-### /movies/<movie_id>
+## /movies/<movie_id>
 
-#### GET /api/movies/1
+### GET /api/movies/1
 
 This endpoint gets movie info.
 
-#### PUT /api/movies/1
+### PUT /api/movies/1
 
 This endpoint edits movie info if admin.
 
@@ -119,19 +117,19 @@ This endpoint edits movie info if admin.
 }
 ```
 
-### /movies/<movie_id>/managetags/<tag_id>
+## /movies/<movie_id>/managetags/<tag_id>
 
-#### POST /api/movies/1/managetags/1
+### POST /api/movies/1/managetags/1
 
 This endpoint adds a tag to a movie.
 
-#### DELETE /api/movies/1/managetags/1
+### DELETE /api/movies/1/managetags/1
 
 This endpoint removes a tag from a movie.
 
-### /tags/<tag_id>
+## /tags/<tag_id>
 
-#### PUT /api/tags/1
+### PUT /api/tags/1
 
 This endpoint edits a tag name.
 
@@ -143,13 +141,13 @@ This endpoint edits a tag name.
 }
 ```
 
-### /reviews/<movie_id>/<user_id>
+## /reviews/<movie_id>/<user_id>
 
-#### GET /api/reviews/1/1
+### GET /api/reviews/1/1
 
 This endpoint gets a review.
 
-#### POST /api/reviews/1/1
+### POST /api/reviews/1/1
 
 This endpoint posts a review.
 
@@ -162,7 +160,7 @@ This endpoint posts a review.
 }
 ```
 
-#### PUT /api/reviews/1/1
+### PUT /api/reviews/1/1
 
 This endpoint edits a review.
 
@@ -175,13 +173,13 @@ This endpoint edits a review.
 }
 ```
 
-### /playlists/<user_id>
+## /playlists/<user_id>
 
-#### GET /api/playlists/1
+### GET /api/playlists/1
 
 This endpoint gets a playlist.
 
-#### POST /api/playlists/1
+### POST /api/playlists/1
 
 This endpoint creates a playlist.
 
@@ -193,23 +191,23 @@ This endpoint creates a playlist.
 }
 ```
 
-### /playlists/<playlist_id>/managemovies/<movie_id>
+## /playlists/<playlist_id>/managemovies/<movie_id>
 
-#### POST /api/playlists/1/managemovies/1
+### POST /api/playlists/1/managemovies/1
 
 This endpoint adds a movie to a playlist.
 
-#### DELETE /api/playlists/1/managemovies/1
+### DELETE /api/playlists/1/managemovies/1
 
 This endpoint removes a movie from a playlist.
 
-### /notifications/<user_id>
+## /notifications/<user_id>
 
-#### GET /api/notifications/1
+### GET /api/notifications/1
 
 This endpoint gets notifications.
 
-#### POST /api/notifications/1
+### POST /api/notifications/1
 
 This endpoint posts a notification.
 
@@ -221,23 +219,23 @@ This endpoint posts a notification.
 }
 ```
 
-#### DELETE /api/notifications/1/1
+### DELETE /api/notifications/1/1
 
 This endpoint deletes a notification.
 
-### /managefollows/<follower_id>/<following_id>
+## /managefollows/<follower_id>/<following_id>
 
-#### POST /api/managefollows/1/3
+### POST /api/managefollows/1/3
 
 This endpoint follows a user.
 
-#### DELETE /api/managefollows/1/3
+### DELETE /api/managefollows/1/3
 
 This endpoint unfollows a user.
 
-### /settings/<user_id>/<setting_name>
+## /settings/<user_id>/<setting_name>
 
-#### POST /api/settings/1/setting_name
+### POST /api/settings/1/setting_name
 
 This endpoint sets a setting.
 
@@ -249,7 +247,7 @@ This endpoint sets a setting.
 }
 ```
 
-#### PUT /api/settings/1/setting_name
+### PUT /api/settings/1/setting_name
 
 This endpoint edits a setting.
 
@@ -261,23 +259,23 @@ This endpoint edits a setting.
 }
 ```
 
-#### DELETE /api/settings/1/setting_name
+### DELETE /api/settings/1/setting_name
 
 This endpoint deletes a setting.
 
-### /reports
+## /reports
 
-#### GET /api/reports
+### GET /api/reports
 
 This endpoint gets reports.
 
-### /reports/<user_id>
+## /reports/<user_id>
 
-#### GET /api/reports/1
+### GET /api/reports/1
 
 This endpoint gets a report.
 
-#### POST /api/reports/1
+### POST /api/reports/1
 
 This endpoint posts a report.
 
@@ -291,7 +289,7 @@ This endpoint posts a report.
 }
 ```
 
-#### PUT /api/reports/2
+### PUT /api/reports/2
 
 This endpoint resolves a report.
 
@@ -302,3 +300,9 @@ This endpoint resolves a report.
     "resolved": true
 }
 ```
+
+## /check-user
+
+### GET /api/check-current-user
+
+This endpoint gets the current user info from the token provided.
