@@ -1,93 +1,112 @@
-import Carousel from 'react-bootstrap/Carousel';
-import Container from 'react-bootstrap/Container';
-import React, { useState } from 'react';
-import { Row, Col } from 'react-bootstrap';
-
+import React, { useContext, useState } from "react";
+import { Carousel } from 'react-bootstrap';
 
 export const Home = () => {
-
   const [index, setIndex] = useState(0);
-  const [index2, setIndex2] = useState(0);
-  const handleSelect = (selectedIndex) => setIndex(selectedIndex);
-  const handleSelect2 = (selectedIndex) => {
-    setIndex2(selectedIndex);
+  const [indexSecondary, setIndexSecondary] = useState(0);
+
+  const handleSelect = (selectedIndex) => {
+    setIndex(selectedIndex)
+    setIndexSecondary(Math.floor(selectedIndex / 4))
   };
 
+  const handleSelect2 = (selectedIndex) => {
+    setIndexSecondary(selectedIndex)
+    setIndex(Math.floor(selectedIndex * 4))
+  };
+
+  const handleClick = (selectedIndex) => {
+    // Logica
+  };
 
   return (
-    <Container>
-      <Carousel activeIndex={index} onSelect={handleSelect}>
-        <Carousel.Item>
-          <img src="https://placehold.co/700x300" className='d-block w-100' alt="Image 1" />
-          <Carousel.Caption>
-            <h3>First slide label</h3>
-            <p>Nulla vitae elit libero, a pharetra augue mollis interdum.</p>
-          </Carousel.Caption>
-        </Carousel.Item>
-        <Carousel.Item>
-          <img src="https://placehold.co/700x300" className='d-block w-100' alt="Image 2" />
-          <Carousel.Caption>
-            <h3>Second slide label</h3>
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-          </Carousel.Caption>
-        </Carousel.Item>
-        <Carousel.Item>
-          <img src="https://placehold.co/700x300" className='d-block w-100' alt="Image 3" />
-          <Carousel.Caption>
-            <h3>Third slide label</h3>
-            <p>
-              Praesent commodo cursus magna, vel scelerisque nisl consectetur.
-            </p>
-          </Carousel.Caption>
-        </Carousel.Item>
-        <Carousel.Item>
-          <img src="https://placehold.co/700x300" className='d-block w-100' alt="Image 4" />
-          <Carousel.Caption>
-            <h3>First slide label</h3>
-            <p>Nulla vitae elit libero, a pharetra augue mollis interdum.</p>
-          </Carousel.Caption>
-        </Carousel.Item>
+    <div className="bg-dark">
+      <Carousel interval={10000} activeIndex={index} onSelect={handleSelect} className="container" style={{ maxWidth: '1500px' }}>
         <Carousel.Item >
-          <img src="https://placehold.co/700x300" className='d-block w-100' alt="Image 5" />
-          <Carousel.Caption>
-            <h3>Second slide label</h3>
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+          <img src='https://placehold.co/800x300' onClick={() => handleClick(index)} className='d-block w-100' />
+          <Carousel.Caption className="text-dark">
+            <h3>Contact List</h3>
+            <p>Trabajo de <a href="https://4geeks.com/syllabus/spain-fs-pt-54/project/contact-list-context">4GeeksAcademy "Contact List"</a>.</p>
           </Carousel.Caption>
         </Carousel.Item>
-        <Carousel.Item >
-          <img src="https://placehold.co/700x300" className='d-block w-100' alt="Image 6" />
-          <Carousel.Caption>
-            <h3>Third slide label</h3>
-            <p>
-              Praesent commodo cursus magna, vel scelerisque nisl consectetur.
-            </p>
+        <Carousel.Item>
+          <img src='https://placehold.co/800x300' onClick={() => handleClick(index)} className='d-block w-100' />
+          <Carousel.Caption className="text-dark">
+            <h3>Personajes</h3>
+            <p>Información sobre los personajes de StarWars.</p>
+            <p>Parte del trabajo de <a href="https://4geeks.com/syllabus/spain-fs-pt-54/project/starwars-blog-reading-list">4GeeksAcademy "Star Wars"</a></p>
+          </Carousel.Caption>
+        </Carousel.Item>
+        <Carousel.Item>
+          <img src='https://placehold.co/800x300' onClick={() => handleClick(index)} className='d-block w-100' />
+          <Carousel.Caption className="text-dark">
+            <h3>Planetas</h3>
+            <p>Información sobre los planetas de StarWars.</p>
+            <p>Parte del trabajo de <a href="https://4geeks.com/syllabus/spain-fs-pt-54/project/starwars-blog-reading-list">4GeeksAcademy "Star Wars"</a></p>
+          </Carousel.Caption>
+        </Carousel.Item>
+        <Carousel.Item>
+          <img src='https://placehold.co/800x300' onClick={() => handleClick(index)} className='d-block w-100' />
+          <Carousel.Caption className="text-dark">
+            <h3>Cacatuas</h3>
+            <p>Información sobre las cacatuas de StarWars.</p>
+            <p>Parte del trabajo de <a href="https://4geeks.com/syllabus/spain-fs-pt-54/project/starwars-blog-reading-list">4GeeksAcademy "Star Wars"</a></p>
+          </Carousel.Caption>
+        </Carousel.Item>
+        <Carousel.Item>
+          <img src='https://placehold.co/800x300' onClick={() => handleClick(index)} className='d-block w-100' />
+          <Carousel.Caption className="text-dark">
+            <h3>Cacatuas</h3>
+            <p>Información sobre las cacatuas de StarWars.</p>
+            <p>Parte del trabajo de <a href="https://4geeks.com/syllabus/spain-fs-pt-54/project/starwars-blog-reading-list">4GeeksAcademy "Star Wars"</a></p>
+          </Carousel.Caption>
+        </Carousel.Item>
+        <Carousel.Item>
+          <img src='https://placehold.co/800x300' onClick={() => handleClick(index)} className='d-block w-100' />
+          <Carousel.Caption className="text-dark">
+            <h3>Cacatuas</h3>
+            <p>Información sobre las cacatuas de StarWars.</p>
+            <p>Parte del trabajo de <a href="https://4geeks.com/syllabus/spain-fs-pt-54/project/starwars-blog-reading-list">4GeeksAcademy "Star Wars"</a></p>
+          </Carousel.Caption>
+        </Carousel.Item>
+        <Carousel.Item>
+          <img src='https://placehold.co/800x300' onClick={() => handleClick(index)} className='d-block w-100' />
+          <Carousel.Caption className="text-dark">
+            <h3>Cacatuas</h3>
+            <p>Información sobre las cacatuas de StarWars.</p>
+            <p>Parte del trabajo de <a href="https://4geeks.com/syllabus/spain-fs-pt-54/project/starwars-blog-reading-list">4GeeksAcademy "Star Wars"</a></p>
+          </Carousel.Caption>
+        </Carousel.Item>
+        <Carousel.Item>
+          <img src='https://placehold.co/800x300' onClick={() => handleClick(index)} className='d-block w-100' />
+          <Carousel.Caption className="text-dark">
+            <h3>Cacatuas</h3>
+            <p>Información sobre las cacatuas de StarWars.</p>
+            <p>Parte del trabajo de <a href="https://4geeks.com/syllabus/spain-fs-pt-54/project/starwars-blog-reading-list">4GeeksAcademy "Star Wars"</a></p>
           </Carousel.Caption>
         </Carousel.Item>
       </Carousel>
 
-      <Carousel activeIndex={index2} onSelect={ handleSelect2}>
-        <Carousel.Item>
-          <Container>
-            <Row>
-              <Col><img src="https://placehold.co/700x300" alt="Image 1" className="img-fluid" /></Col>
-              <Col><img src="https://placehold.co/700x300" alt="Image 2" className="img-fluid" /></Col>
-              <Col><img src="https://placehold.co/700x300" alt="Image 3" className="img-fluid" /></Col>
-              <Col><img src="https://placehold.co/700x300" alt="Image 4" className="img-fluid" /></Col>
-            </Row>
-          </Container>
+
+      <Carousel interval={null} activeIndex={indexSecondary} onSelect={handleSelect2} className="container" style={{ maxWidth: '1500px' }}>
+        <Carousel.Item >
+          <div className="d-flex justify-content-center">
+            <span><img src='https://placehold.co/800x300' className="m-3" onClick={() => handleSelect(0)} style={{ width: "300px", height: "200px" }} /></span>
+            <span><img src='https://placehold.co/800x300' className="m-3" onClick={() => handleSelect(1)} style={{ width: "300px", height: "200px" }} /></span>
+            <span><img src='https://placehold.co/800x300' className="m-3" onClick={() => handleSelect(2)} style={{ width: "300px", height: "200px" }} /></span>
+            <span><img src='https://placehold.co/800x300' className="m-3" onClick={() => handleSelect(3)} style={{ width: "300px", height: "200px" }} /></span>
+          </div>
         </Carousel.Item>
-        <Carousel.Item>
-          <Container>
-            <Row>
-              <Col><img src="https://placehold.co/700x300" alt="Image 5" className="img-fluid" /></Col>
-              <Col><img src="https://placehold.co/700x300" alt="Image 6" className="img-fluid" /></Col>
-              <Col><img src="https://placehold.co/700x300" alt="Image 7" className="img-fluid" /></Col>
-              <Col><img src="https://placehold.co/700x300" alt="Image 8" className="img-fluid" /></Col>
-            </Row>
-          </Container>
+        <Carousel.Item >
+          <div className="d-flex justify-content-center">
+            <span><img src='https://placehold.co/800x300' className="m-3" onClick={() => handleSelect(4)} style={{ width: "300px", height: "200px" }} /></span>
+            <span><img src='https://placehold.co/800x300' className="m-3" onClick={() => handleSelect(5)} style={{ width: "300px", height: "200px" }} /></span>
+            <span><img src='https://placehold.co/800x300' className="m-3" onClick={() => handleSelect(6)} style={{ width: "300px", height: "200px" }} /></span>
+            <span><img src='https://placehold.co/800x300' className="m-3" onClick={() => handleSelect(7)} style={{ width: "300px", height: "200px" }} /></span>
+          </div>
         </Carousel.Item>
-        {/* Add more Carousel.Item for additional slides */}
       </Carousel>
-    </Container>
+
+    </div>
   );
-};
+}
