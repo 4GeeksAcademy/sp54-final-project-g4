@@ -20,7 +20,8 @@ export const Navigation = () => {
   const navigate = useNavigate()
 
   const handleProfile = async () => {
-    navigate("/profile/" + await actions.getUserLoggedIn())
+    const response = await actions.getUserLoggedIn()
+    navigate("/profile/" + response.results.username)
   }
 
 

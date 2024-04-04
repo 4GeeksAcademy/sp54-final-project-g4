@@ -1,64 +1,187 @@
 const getState = ({ getStore, getActions, setStore }) => {
-  return {
-    store: {
-      message: null,
-      demo: [{title: "FIRST", background: "white", initial: "white"},
-             {title: "SECOND", background: "white", initial: "white"}],
-      isLogin: false,
+	return {
+		store: {
+			baseURL: process.env.BACKEND_URL,
+			message: null,
+			demo: [{ title: "FIRST", background: "white", initial: "white" },
+			{ title: "SECOND", background: "white", initial: "white" }],
+			isLogin: false,
 			showModalSignup: false,
-			showModalSignin: false
-    },
-    actions: {
-      signin: async (data) => {
-				const options = {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify(data),
+			showModalSignin: false,
+		},
+
+		actions: {
+
+			// API Handler
+			APICall: async (url, options) => {
+				try {
+					console.log('Data in APICall: ', url, options)
+					const response = await fetch(getStore().baseURL + url, options);
+					if (!response.ok) {
+						console.error('Error: ' + response.status, response.statusText);
+						return response.status;
+					}
+					return await response.json();
+				} catch (error) {
+					console.error('Error in fetch:', error);
+					return null;
 				}
-				const response = await getActions().APICall(process.env.BACKEND_URL + '/api/signin/', options);
-				if (response.access_token != undefined) {
-					getActions().signedIn()
+			},
+
+			optionsMethod: async (method, data = null) => {
+				const headers = { 'Content-Type': 'application/json' }
+				if (getStore().isLogin == true) { headers['Authorization'] = `Bearer ${localStorage.getItem('access_token')}`; }
+				const options = {
+					method: method,
+					headers: headers,
+				}
+				if (data) {
+					options.body = JSON.stringify(data);
+				}
+				return options;
+			},
+
+			login: async (data) => {
+				const response = await getActions().APICall('login/', await getActions().optionsMethod('POST', data));
+				if (typeof response == 'object') {
 					localStorage.setItem('access_token', response.access_token)
-				} else console.error('Algo salio mal, no se el que, pero algo', response)
+					getActions().signedIn()
+					return response.message
+				}
+				return null
 			},
 
 			signup: async (data) => {
-				const options = {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify(data),
+				const response = await getActions().APICall('signup/', await getActions().optionsMethod('POST', data));
+				if (typeof response == 'object') {
+					return response.message
 				}
-				return await getActions().APICall(process.env.BACKEND_URL + '/api/signup/', options)
+				return null
 			},
 
-			getProfileUser: async (user) => {
-				const options = {
-					method: 'GET',
-					headers: {
-						'Content-Type': 'application/json',
-					}
-				}
-				const response = await getActions().APICall(process.env.BACKEND_URL + '/api/profile/' + user, options)
-				return response.results
+			getUserList: async () => {
+				return await getActions().APICall('users/', await getActions().optionsMethod('GET'))
+			},
+
+			getUser: async (user) => {
+				return await getActions().APICall(`users/${user}`, await getActions().optionsMethod('GET'))
+			},
+
+			editUser: async (user, data) => {
+				return await getActions().APICall(`users/${user}`, await getActions().optionsMethod('PUT', data))
+			},
+
+			getMovies: async () => {
+				return await getActions().APICall('movies/', await getActions().optionsMethod('GET'))
+			},
+
+			addMovie: async (data) => {
+				return await getActions().APICall('movies/', await getActions().optionsMethod('POST', data));
+			},
+
+			getMovie: async (movie_id) => {
+				return await getActions().APICall(`movies/${movie_id}`, await getActions().optionsMethod('GET'))
+			},
+
+			editMovie: async (movie_id, data) => {
+				return await getActions().APICall(`movies/${movie_id}`, await getActions().optionsMethod('PUT', data))
+			},
+
+			addTagToMovie: async (movie_id, tag_id) => {
+				return await getActions().APICall(`movies/${movie_id}/managetags/${tag_id}`, await getActions().optionsMethod('POST'))
+			},
+
+			removeTagFromMovie: async (movie_id, tag_id) => {
+				return await getActions().APICall(`movies/${movie_id}/managetags/${tag_id}`, await getActions().optionsMethod('DELETE'))
+			},
+
+			editTag: async (tag_id, data) => {
+				return await getActions().APICall(`tags/${tag_id}`, await getActions().optionsMethod('PUT', data))
+			},
+
+			getReview: async (movie_id, user_id) => {
+				return await getActions().APICall(`reviews/${movie_id}/${user_id}`)
+			},
+
+			postReview: async (movie_id, user_id, data) => {
+				return await getActions().APICall(`reviews/${movie_id}/${user_id}`, await getActions().optionsMethod('POST', data));
+			},
+
+			editReview: async (movie_id, user_id, data) => {
+				return await getActions().APICall(`reviews/${movie_id}/${user_id}`, await getActions().optionsMethod('PUT', data));
+			},
+
+			getPlaylist: async (user_id) => {
+				return await getActions().APICall(`playlists/${user_id}`)
+			},
+
+			createPlaylist: async (user_id, data) => {
+				return await getActions().APICall(`playlists/${user_id}`, await getActions().optionsMethod('POST', data));
+			},
+
+			addMovieToPlaylist: async (playlist_id, movie_id) => {
+				return await getActions().APICall(`playlists/${playlist_id}/managemovies/${movie_id}`, await getActions().optionsMethod('POST', data));
+			},
+
+			removeMovieFromPlaylist: async (playlist_id, movie_id) => {
+				return await getActions().APICall(`playlists/${playlist_id}/managemovies/${movie_id}`, await getActions().optionsMethod('DELETE', data));
+			},
+
+			getNotifications: async (user_id) => {
+				return await getActions().APICall(`notifications/${user_id}`)
+			},
+
+			postNotification: async (user_id, data) => {
+				return await getActions().APICall(`notifications/${user_id}`, await getActions().optionsMethod('POST', data));
+			},
+
+			deleteNotification: async (user_id, notification_id) => {
+				return await getActions().APICall(`notifications/${user_id}/${notification_id}`, await getActions().optionsMethod('DELETE'));
+			},
+
+			followUser: async (follower_id, following_id) => {
+				return await getActions().APICall(`managefollows/${follower_id}/${following_id}`, await getActions().optionsMethod('POST'));
+			},
+
+			unfollowUser: async (follower_id, following_id) => {
+				return await getActions().APICall(`managefollows/${follower_id}/${following_id}`, await getActions().optionsMethod('DELETE'));
+			},
+
+			setSetting: async (user_id, setting_name, data) => {
+				return await getActions().APICall(`settings/${user_id}/${setting_name}`, await getActions().optionsMethod('POST', data));
+			},
+
+			editSetting: async (user_id, setting_name, data) => {
+				return await getActions().APICall(`settings/${user_id}/${setting_name}`, await getActions().optionsMethod('PUT', data));
+			},
+
+			deleteSetting: async (user_id, setting_name) => {
+				return await getActions().APICall(`settings/${user_id}/${setting_name}`, await getActions().optionsMethod('DELETE', data));
+			},
+
+			getReports: async () => {
+				return await getActions().APICall(`reports/`)
+			},
+
+			getReport: async (user_id) => {
+				return await getActions().APICall(`reports/${user_id}`)
+			},
+
+			postReport: async (user_id, data) => {
+				return await getActions().APICall(`reports/${user_id}`, await getActions().optionsMethod('POST', data));
+			},
+
+			resolveReport: async (report_id, data) => {
+				return await getActions().APICall(`reports/${report_id}`, await getActions().optionsMethod('PUT', data))
 			},
 
 			getUserLoggedIn: async () => {
-				if (localStorage.getItem('access_token')){
-					const options = {
-						method: 'GET',
-						headers: {
-							'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-						}
-					}
-					const response = await getActions().APICall(process.env.BACKEND_URL + '/api/profile/check', options)
-					return response.results
-				} else return 'None'
+				const response = await getActions().APICall(`check-current-user/`, await getActions().optionsMethod('GET'))
+				setStore({ userInfo: response })
+				return response
 			},
 
+			// Functions for the website
 			signedIn: () => {
 				setStore({ isLogin: true });
 			},
@@ -75,36 +198,8 @@ const getState = ({ getStore, getActions, setStore }) => {
 			showModalSignup: (value) => {
 				setStore({ showModalSignup: value });
 			},
-      // Use getActions to call a function within a fuction
-      exampleFunction: () => { getActions().changeColor(0, "green"); },
-      getMessage: async () => {
-        try {
-          // Fetching data from the backend
-          const url = process.env.BACKEND_URL + "/api/hello";
-          const options = {
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          }
-          const response = await fetch(url, options)
-          const data = await response.json()
-          setStore({ message: data.message })
-          return data;  // Don't forget to return something, that is how the async resolves
-        } catch (error) {
-          console.log("Error loading message from backend", error)
-        }
-      },
-      changeColor: (index, color) => {
-        const store = getStore();  // Get the store
-        // We have to loop the entire demo array to look for the respective index and change its color
-        const demo = store.demo.map((element, i) => {
-          if (i === index) element.background = color;
-          return element;
-        });
-        setStore({ demo: demo });  // Reset the global store
-      }
-    }
-  };
+		}
+	};
 };
 
 export default getState;

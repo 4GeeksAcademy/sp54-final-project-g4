@@ -85,13 +85,13 @@ def login():
             user = db.session.execute(db.select(Users).filter(Users.username.ilike(username))).scalar()
         if email:
             email_lowercase = email.lower() # Tratamos el email para no tener problemas con las mayúsculas.
-            user = db.session.execute(db.select(Users).filter(Users.email.ilike(email))).scalar()
+            user = db.session.execute(db.select(Users).filter(Users.email.ilike(email_lowercase))).scalar()
         if not user:
-            response_body["message"] = "User is not registered."
-            return response_body, 401
+            response_body["message"] = f"User is not registered."
+            return response_body, 404
         if not user.is_active:
             response_body["message"] = "Account is inactive"
-            return response_body, 401
+            return response_body, 404
         password = request.json.get("password", None)
         if bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
             access_token = create_access_token(identity=user.serialize_public())
@@ -101,6 +101,19 @@ def login():
             return response_body, 200
         response_body["message"] = "Incorrect password."
         return response_body, 401
+    response_body['message'] = "Method not allowed."
+    return response_body, 405
+
+@api.route("/check-current-user", methods=["GET"])
+@jwt_required()
+def check_current_user():
+    response_body = {}
+    current_user = get_jwt_identity()
+    if request.method == 'GET':
+        print(current_user)
+        response_body['message'] = f"El usuario es: {current_user['username']}"
+        response_body['results'] = current_user
+        return response_body, 200
     response_body['message'] = "Method not allowed."
     return response_body, 405
 
