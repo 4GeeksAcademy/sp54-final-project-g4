@@ -10,6 +10,7 @@ import { Footer } from "./component/Footer.jsx";
 import { Home } from "./pages/Home.jsx";
 import { Demo } from "./pages/Demo.jsx";
 import { Single } from "./pages/Single.jsx";
+import { Carroussel } from "./component/Carroussel.jsx";
 import { Buscador } from "./pages/Buscador.jsx";
 import { Profile } from "./pages/Profile.jsx";
 
@@ -30,6 +31,7 @@ const Layout = () => {
                         <Route element={<Demo />} path="/demo" />
                         <Route element={<Single />} path="/single/:theid" />
                         <Route element={<h1>Not found!</h1>} />
+                        <Route element={<Carroussel />} path="/carrussel" />
                         <Route element={<Buscador />} path="/buscador" />
                         <Route element={<Profile />} path="/profile" />
                     </Routes>
