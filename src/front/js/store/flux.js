@@ -52,7 +52,11 @@ const getState = ({ getStore, getActions, setStore }) => {
 			},
 
 			signup: async (data) => {
-				return await getActions().APICall('signup/', await getActions().optionsMethod('POST', data));
+				const response = await getActions().APICall('signup/', await getActions().optionsMethod('POST', data));
+				if (typeof response == 'object') {
+					return response.message
+				}
+				return null
 			},
 
 			getUserList: async () => {

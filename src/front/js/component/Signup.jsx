@@ -17,10 +17,13 @@ export const Signup = () => {
         setFormData({ ...formData, [event.target.name]: event.target.value })
     };
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
         if (confirmPassword === formData.password) {
-            actions.signup(formData)
+            const response = await actions.signup(formData)
+            response ? alert(response) : alert("Credentials are invalid!")
+            setFormData({ username: '', email: '', password: '' })
+            setConfirmPassword('')
             actions.showModalSignup(false)
         } else {
             alert("Passwords doesn't match")
