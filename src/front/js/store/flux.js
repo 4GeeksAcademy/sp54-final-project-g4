@@ -8,6 +8,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 			isLogin: false,
 			showModalSignup: false,
 			showModalSignin: false,
+			userInfo: null,
 		},
 
 		actions: {
@@ -30,7 +31,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 
 			optionsMethod: async (method, data = null) => {
 				const headers = { 'Content-Type': 'application/json' }
-				if (getStore().isLogin == true) { headers['Authorization'] = `Bearer ${localStorage.getItem('access_token')}`; }
+				if (localStorage.getItem('access_token')) { headers['Authorization'] = `Bearer ${localStorage.getItem('access_token')}`; }
 				const options = {
 					method: method,
 					headers: headers,
