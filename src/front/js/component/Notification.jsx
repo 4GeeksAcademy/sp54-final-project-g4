@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import { Context } from '../store/appContext.js'
 import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
@@ -8,9 +9,13 @@ import ToastContainer from 'react-bootstrap/ToastContainer';
 
 export const Notification = () => {
     const [showA, setShowA] = useState(false);
+    const { store, actions } = useContext(Context)
 
     const toggleShowA = () => setShowA(!showA);
 
+    const handleNotifications = async () => {
+        actions.getNotifications()
+    }
 
     return (
         <Row>
@@ -29,8 +34,6 @@ export const Notification = () => {
                         <Toast.Body>Woohoo, you're reading this text in a Toast!</Toast.Body>
                     </Toast>
                 </ToastContainer>
-
-
 
             </Col>
         </Row>
