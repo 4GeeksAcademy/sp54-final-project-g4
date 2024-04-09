@@ -30,6 +30,7 @@ class Users(db.Model):
     password = db.Column(db.String , unique=False, nullable=False)
     credits = db.Column(db.Integer, default=0, unique=False, nullable=False)
     role = db.Column(db.String(20), default='user', unique=False, nullable=False)
+    bio = db.Column(db.String(240), unique=False, nullable=True)
     referral_code = db.Column(db.String(10), unique=True, nullable=False)
     is_active = db.Column(db.Boolean(), default=True, unique=False, nullable=False)
     referred_by = db.Column(db.String(10), db.ForeignKey('users.referral_code'), unique=False, nullable=True)
@@ -55,6 +56,7 @@ class Users(db.Model):
                 'credits': self.credits,
                 'referral_code': self.referral_code,
                 'role': self.role,
+                'bio': self.bio,
                 'referred_by': self.referred_by,
                 'recommendations': [row.serialize() for row in self.recommendations],
                 'favorite_movies': [row.serialize() for row in self.favorite_movies],
@@ -75,13 +77,17 @@ class Users(db.Model):
                 'referral_code': self.referral_code,
                 'referred_by': self.referred_by,
                 'role': self.role,
-                'is_active': self.is_active}
+                'bio': self.bio,
+                'is_active': self.is_active,
+                'followers': [row.serialize() for row in self.followers],
+                'followings': [row.serialize() for row in self.followings]}
 
     def serialize_followers(self):
         return {'id': self.id,
                 'username': self.username,
                 'referral_code': self.referral_code,
                 'role': self.role,
+                'bio': self.bio,
                 'is_active': self.is_active,
                 'followers': [row.serialize() for row in self.followers],
                 'followings': [row.serialize() for row in self.followings]}
