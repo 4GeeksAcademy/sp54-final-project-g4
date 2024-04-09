@@ -1,7 +1,6 @@
 import React from "react";
 import { Modal, Button } from "react-bootstrap";
 
-
 export const Settings = ({ show, handleClose }) => {
     return (
         <Modal show={show} onHide={handleClose} centered>
@@ -22,14 +21,6 @@ export const Settings = ({ show, handleClose }) => {
                                     <span className="input-group-text" id="addon-wrapping">@</span>
                                     <input type="text" className="form-control" placeholder="Username" aria-label="Username" aria-describedby="addon-wrapping" />
                                 </div>
-                                <div className="form-floating mt-3">
-                                    <input type="email" className="form-control" id="floatingInput" placeholder="name@example.com" />
-                                    <label htmlFor="floatingInput">Email address</label>
-                                </div>
-                                <div className="form-floating mt-3">
-                                    <input type="password" className="form-control" id="floatingPassword" placeholder="Password" />
-                                    <label htmlFor="floatingPassword">Password</label>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -41,10 +32,19 @@ export const Settings = ({ show, handleClose }) => {
                         </h2>
                         <div id="flush-collapseTwo" className="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
                             <div className="accordion-body">
-                                <div className="form-check form-switch">
-                                    <input className="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" />
-                                    <label className="form-check-label" htmlFor="flexSwitchCheckDefault">Private Account</label>
-                                </div>
+                            <div className="form-floating">
+                                                <input type="email" className="form-control" id="floatingInput" placeholder="name@example.com" />
+                                                <label for="floatingInput">Email address</label>
+                                            </div>
+                                            <div className="form-floating mt-2 ">
+                                                <input type="password" className="form-control" id="floatingPassword" placeholder="Password" />
+                                                <label for="floatingPassword">Password</label>
+                                            </div>
+
+                                            <div className="form-check form-switch mt-3">
+                                                <input className="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" />
+                                                <label className="form-check-label" for="flexSwitchCheckDefault">Private Account</label>
+                                            </div>
                             </div>
                         </div>
                     </div>
