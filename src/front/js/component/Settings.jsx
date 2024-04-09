@@ -25,17 +25,14 @@ export const Settings = () => {
                                     </h2>
                                     <div id="flush-collapseOne" className="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
                                         <div className="accordion-body">
-                                            <div className="input-group flex-nowrap">
+
+                                            <div className="input-group flex-nowrap mb-3">
                                                 <span className="input-group-text" id="addon-wrapping">@</span>
                                                 <input type="text" className="form-control" placeholder="Username" aria-label="Username" aria-describedby="addon-wrapping" />
                                             </div>
-                                            <div className="form-floating mt-3">
-                                                <input type="email" className="form-control" id="floatingInput" placeholder="name@example.com" />
-                                                <label for="floatingInput">Email address</label>
-                                            </div>
-                                            <div className="form-floating mt-3">
-                                                <input type="password" className="form-control" id="floatingPassword" placeholder="Password" />
-                                                <label for="floatingPassword">Password</label>
+                                            <div class="mb-3">
+                                                <label for="exampleFormControlTextarea1" class="form-label">Change your bio!</label>
+                                                <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
                                             </div>
                                         </div>
                                     </div>
@@ -48,10 +45,20 @@ export const Settings = () => {
                                     </h2>
                                     <div id="flush-collapseTwo" className="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
                                         <div className="accordion-body">
-                                            <div className="form-check form-switch">
+                                            <div className="form-floating">
+                                                <input type="email" className="form-control" id="floatingInput" placeholder="name@example.com" />
+                                                <label for="floatingInput">Email address</label>
+                                            </div>
+                                            <div className="form-floating mt-2 ">
+                                                <input type="password" className="form-control" id="floatingPassword" placeholder="Password" />
+                                                <label for="floatingPassword">Password</label>
+                                            </div>
+
+                                            <div className="form-check form-switch mt-3">
                                                 <input className="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" />
                                                 <label className="form-check-label" for="flexSwitchCheckDefault">Private Account</label>
                                             </div>
+
                                         </div>
                                     </div>
                                 </div>
@@ -65,6 +72,7 @@ export const Settings = () => {
                                         <div className="accordion-body">  xxx-xxx-xxx</div>
                                     </div>
                                 </div>
+
                                 <a className="nav-link text-danger" >Delete Account</a>
                             </div>
                         </div>
