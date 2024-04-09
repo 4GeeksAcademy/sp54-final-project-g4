@@ -14,6 +14,7 @@ import { Carroussel } from "./component/Carroussel.jsx";
 import { Buscador } from "./pages/Buscador.jsx";
 import { Profile } from "./pages/Profile.jsx";
 
+
 // Create your first component
 const Layout = () => {
     // The basename is used when your project is published in a subdirectory and not in the root of the domain
@@ -34,6 +35,7 @@ const Layout = () => {
                         <Route element={<Carroussel />} path="/carrussel" />
                         <Route element={<Buscador />} path="/buscador" />
                         <Route element={<Profile />} path="/profile" />
+                     
                     </Routes>
                     <Footer />
                 </ScrollToTop>

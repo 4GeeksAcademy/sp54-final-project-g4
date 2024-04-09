@@ -10,6 +10,8 @@ import Form from 'react-bootstrap/Form';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
+import { Notification } from "./Notification.jsx";
+
 
 
 
@@ -33,7 +35,7 @@ export const Navigation = () => {
   return (
     <Navbar expand="lg" variant="dark" bg="dark" className="bg-gradient p-0">
       <Container fluid>
-        <Navbar.Brand href="#home" >
+        <Navbar.Brand href="/" >
           <img
             alt=""
             src="/img/logo.svg"
@@ -43,6 +45,7 @@ export const Navigation = () => {
           />{' '}
           Star Trail
         </Navbar.Brand>
+        
         <Navbar.Toggle />
         <Navbar.Collapse >
           <Nav
@@ -50,19 +53,15 @@ export const Navigation = () => {
             style={{ maxHeight: '100px' }}
             navbarScroll
           >
-            <Nav.Link href="#action1" >Home</Nav.Link>
+            <Nav.Link href="/" >Home</Nav.Link>
             <NavDropdown title="Menu" >
-              <NavDropdown.Item href="#action3">Series</NavDropdown.Item>
-              <NavDropdown.Item href="#action4">
+              <NavDropdown.Item href="series">Series</NavDropdown.Item>
+              <NavDropdown.Item href="movies">
                 Movies
               </NavDropdown.Item>
               <NavDropdown.Divider />
-              <NavDropdown.Item href="#action5">
-                {store.isLogin ?
-                  <p onClick={() => handleSignout()} className="p-0">Logout</p>
-                  :
-                  <p onClick={() => actions.showModalSignup(true)} className="p-0">Sign up</p>
-                }
+              <NavDropdown.Item href="watchlist">
+                Watchlist
               </NavDropdown.Item>
             </NavDropdown>
           </Nav>
@@ -75,22 +74,28 @@ export const Navigation = () => {
             />
             <Button variant="outline-success me-2">Search</Button>
           </Form>
-
           <Nav>
+          
             {store.isLogin ?
               <p onClick={() => handleProfile()} className="text-light mt-3">Profile</p>
               :
-              <p onClick={() => actions.showModalSignin(true)} className="text-light mt-3">Login</p>
+              <p onClick={() => actions.showModalSignin(true)} className="text-light mt-3">Login or</p>
             }
           </Nav>
 
-          <Nav.Link href="#" className="text-light">
-            Watchlist
+          <Nav.Link href="#" className="text-light mx-2">
+            {store.isLogin ?
+              <p onClick={() => handleSignout()} className="p-0 mt-3">Logout</p>
+              :
+              <p onClick={() => actions.showModalSignup(true)} className="p-0 mt-3">Sign up</p>
+            }
           </Nav.Link>
+          <Notification />
         </Navbar.Collapse>
       </Container>
       <Login />
       <Signup />
+      
     </Navbar>
   );
 }
