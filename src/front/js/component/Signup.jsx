@@ -30,6 +30,13 @@ export const Signup = () => {
         }
     }
 
+    const handleSwitch = (e) => {
+        e.preventDefault();
+        setFormData({username: '', email: '', password: ''})
+        actions.showModalSignup(false)
+        actions.showModalSignin(true)
+    }
+
     const handleCancel = () => {
         setFormData({username: '', email: '', password: ''})
         actions.showModalSignup(false)
@@ -59,6 +66,7 @@ export const Signup = () => {
                 </Form.Group>
 
                 <Form.Group className="text-center mt-5">
+                    <p>Already have an account? <a href='#' onClick={(e) => handleSwitch(e)}>Click here to login!</a></p>
                     <Button className="mx-2 px-2" variant="danger" type="button" onClick={handleCancel}>
                         Cancel
                     </Button>
