@@ -35,7 +35,7 @@ const Layout = () => {
                         <Route element={<Carroussel />} path="/carrussel" />
                         <Route element={<Buscador />} path="/buscador" />
                         <Route element={<MovieDetails />} path="/movie/:movieid" />
-                        <Route element={<Profile />} path="/profile" />
+                        <Route element={<Profile />} path="/profile/:username" />
                     </Routes>
                     <Footer />
                 </ScrollToTop>
