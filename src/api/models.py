@@ -75,7 +75,9 @@ class Users(db.Model):
                 'referral_code': self.referral_code,
                 'referred_by': self.referred_by,
                 'role': self.role,
-                'is_active': self.is_active}
+                'is_active': self.is_active,
+                'followers': [row.serialize() for row in self.followers],
+                'followings': [row.serialize() for row in self.followings]}
 
     def serialize_followers(self):
         return {'id': self.id,
