@@ -13,6 +13,7 @@ import { Single } from "./pages/Single.jsx";
 import { Carroussel } from "./component/Carroussel.jsx";
 import { Buscador } from "./pages/Buscador.jsx";
 import { Profile } from "./pages/Profile.jsx";
+import { MovieDetails } from "./pages/MovieInfo.jsx";
 
 // Create your first component
 const Layout = () => {
@@ -33,6 +34,7 @@ const Layout = () => {
                         <Route element={<h1>Not found!</h1>} />
                         <Route element={<Carroussel />} path="/carrussel" />
                         <Route element={<Buscador />} path="/buscador" />
+                        <Route element={<MovieDetails />} path="/movie/:movieid" />
                         <Route element={<Profile />} path="/profile" />
                     </Routes>
                     <Footer />
