@@ -10,13 +10,14 @@ export const Profile = () => {
     // useStates
     const [infoProfile, setInfoProfile] = useState({
             "credits": 0,
-            "email": "apuntame@esta.com",
+            "email": "",
             "followers": [],
             "followings": [],
             "is_active": true,
-            "username": "ElNotas"
+            "username": ""
         
     })
+    
     const [isSameUser, setIsSameUser] = useState(false)
     const [show, setShow] = useState(false)
     const params = useParams(); // esto es igual a : es lo que va dentro de Params 
@@ -34,6 +35,7 @@ export const Profile = () => {
         setInfoProfile(response.results)
         console.log(response.results);
     }
+    
 
     const checkIsSameUser = async () => {
         if (localStorage.getItem('access_token')) {
@@ -62,13 +64,16 @@ export const Profile = () => {
                             <Button variant="secondary" className={isSameUser ? "d-grid gap-2" : "d-grid gap-2 disabled"} onClick={handleOpenSettings}>Edit Profile</Button>
                         ) : null}
                         <div className="card-body bg-light mt-2 text-dark">
-                            {infoProfile.username}
+                            {infoProfile.bio}
+                            
                         </div>
                     </div>
                 </div>
                 <div className="container d-flex justify-content-between mx-3">
                     <div >
-                        <h1 className="mt-3">{params.username}</h1>
+                        <h1 className="mt-3">{params.username} {infoProfile.is_active == false ? 
+                            <span className="mx-2 text-danger fw-bold">Account deactivated</span>
+                            : ""}</h1> 
                         {isSameUser ? (
                             <p className="fw-bold fs-6 text-warning">credits {infoProfile.credits} <i className="fa-solid fa-coins ms-1"></i></p>
                         ) : null}
@@ -83,7 +88,7 @@ export const Profile = () => {
                         <Button className={!isSameUser ? "" : "disabled"} variant="secondary">Report</Button>
                     </div>
                 </div>
-                <Settings show={show}/>
+                <Settings show={show} handleClose={handleCloseSettings}/>
             </div>
     )
 }
