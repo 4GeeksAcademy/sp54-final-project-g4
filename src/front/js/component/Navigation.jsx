@@ -90,7 +90,8 @@ export const Navigation = () => {
               <p onClick={() => actions.showModalSignup(true)} className="p-0 mt-3">Sign up</p>
             }
           </Nav.Link>
-          <Notification />
+          {store.isLogin && <Notification />}
+          
         </Navbar.Collapse>
       </Container>
       <Login />
