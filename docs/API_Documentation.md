@@ -191,6 +191,31 @@ This endpoint creates a playlist.
 }
 ```
 
+### PUT /api/playlists/1
+
+This endpoint edits a playlist name.
+
+**Request Body:**
+
+```json
+{
+    "name": "Playlist name",
+    "new_name": "New Playlist name"
+}
+```
+
+### DELETE /api/playlists/1
+
+This endpoint deletes a playlist.
+
+**Request Body:**
+
+```json
+{
+    "name": "Playlist name"
+}
+```
+
 ## /playlists/<playlist_id>/managemovies/<movie_id>
 
 ### POST /api/playlists/1/managemovies/1
