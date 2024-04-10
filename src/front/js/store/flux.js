@@ -120,12 +120,20 @@ const getState = ({ getStore, getActions, setStore }) => {
 				return await getActions().APICall(`playlists/${user_id}`, await getActions().optionsMethod('POST', data));
 			},
 
+			deletePlaylist: async (user_id, data) => {
+				return await getActions().APICall(`playlists/${user_id}`, await getActions().optionsMethod('DELETE', data));
+			},
+
+			editPlaylist: async (user_id, data) => {
+				return await getActions().APICall(`playlists/${user_id}`, await getActions().optionsMethod('PUT', data));
+			},
+
 			addMovieToPlaylist: async (playlist_id, movie_id) => {
-				return await getActions().APICall(`playlists/${playlist_id}/managemovies/${movie_id}`, await getActions().optionsMethod('POST', data));
+				return await getActions().APICall(`playlists/${playlist_id}/managemovies/${movie_id}`, await getActions().optionsMethod('POST'));
 			},
 
 			removeMovieFromPlaylist: async (playlist_id, movie_id) => {
-				return await getActions().APICall(`playlists/${playlist_id}/managemovies/${movie_id}`, await getActions().optionsMethod('DELETE', data));
+				return await getActions().APICall(`playlists/${playlist_id}/managemovies/${movie_id}`, await getActions().optionsMethod('DELETE'));
 			},
 
 			getNotifications: async (user_id) => {
@@ -157,7 +165,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 			},
 
 			deleteSetting: async (user_id, setting_name) => {
-				return await getActions().APICall(`settings/${user_id}/${setting_name}`, await getActions().optionsMethod('DELETE', data));
+				return await getActions().APICall(`settings/${user_id}/${setting_name}`, await getActions().optionsMethod('DELETE'));
 			},
 
 			getReports: async () => {

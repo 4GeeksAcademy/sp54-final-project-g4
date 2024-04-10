@@ -79,8 +79,11 @@ class Users(db.Model):
                 'role': self.role,
                 'bio': self.bio,
                 'is_active': self.is_active,
+                'reviews': [row.serialize() for row in self.reviews],
+                'playlist': [row.serialize() for row in self.playlist],
                 'followers': [row.serialize() for row in self.followers],
-                'followings': [row.serialize() for row in self.followings]}
+                'followings': [row.serialize() for row in self.followings],
+                'settings': [row.serialize() for row in self.settings]}
 
     def serialize_followers(self):
         return {'id': self.id,

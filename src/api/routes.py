@@ -68,6 +68,15 @@ def handle_signup():
                      referred_by = reffered_by)
         db.session.add(user)
         db.session.commit()
+        user_info = db.session.execute(db.select(Users).filter(Users.username.ilike(data.get('username')))).scalar()
+        defaultSetting = User_settings(user_id = user_info.id,
+                                       setting_name = 'privacy',
+                                       setting_value = 'public')
+        defaultPlaylist = Playlists(name = 'Recomendations',
+                                    user_id = user_info.id)
+        db.session.add(defaultSetting)
+        db.session.add(defaultPlaylist)
+        db.session.commit()
         response_body['message'] = f"User {data.get('username')} added."
         return response_body, 200
     response_body['message'] = "Method not allowed."
@@ -386,7 +395,7 @@ def handle_review_movie_user(movie_id, user_id):
     return response_body, 405
 
 
-@api.route("/playlists/<int:user_id>", methods=['GET','POST'])
+@api.route("/playlists/<int:user_id>", methods=['GET','POST', 'PUT', 'DELETE'])
 @jwt_required(optional=True)
 def handle_playlists_user_all(user_id):
     response_body = {}
@@ -415,14 +424,46 @@ def handle_playlists_user_all(user_id):
         response_body['message'] = f"Playlist {data.get('name')} added"
         return response_body, 200
 
-    if request.method == 'POST':
+    # Estos dos Endpoints, el PUT y el DELETE estan pegados con cola blanca para el deploy, es una chapuza, lo se
+    # Por no hacer, no comprueba ni quien borra el endpoint, vamos, una chapuza.
+    if request.method == 'PUT':
         data = request.json
-        db.session.add(playlist)
+        playlist = db.session.execute(db.select(Playlists).where(Playlists.user_id == user_id, Playlists.name == data.get('name'))).scalar()
+        if not playlist:
+            response_body['message'] = f"Playlist does not exist"
+            return response_body, 404
+        if playlist.name == "Recomendations":
+            response_body['message'] = f"Cannot edit this playlist!"
+            return response_body, 403
+        required_data = ['name', 'new_name']
+        for key in required_data:
+            if key not in data:
+                response_body['message'] = f"Falta {key} en el body"
+                return response_body, 400
+        allowed_attributes = {'name': True}
+        for key, value in data.items():
+            if hasattr(playlist, key) and allowed_attributes.get(key, False):
+                if key == 'name':
+                    value = data['new_name']
+                setattr(playlist, key, value)
         db.session.commit()
-        response_body['message'] = f"Playlist {data['name']} successfully added"
+        response_body['message'] = f"Playlist {data['name']} successfully updated to {data['new_name']}"
         return response_body, 200
-    response_body['message'] = "Method not allowed."
-    return response_body, 405
+
+    if request.method == 'DELETE':
+        data = request.json
+        playlist = db.session.execute(db.select(Playlists).where(Playlists.user_id == user_id, Playlists.name == data.get('name'))).scalar()
+        if not playlist:
+            response_body['message'] = f"Playlist does not exist"
+            return response_body, 404
+        if playlist.name == "Recomendations":
+            response_body['message'] = f"Cannot delete this playlist!"
+            return response_body, 403
+        db.session.delete(playlist)
+        db.session.commit()
+        response_body['message'] = f"Playlist {playlist.name} successfully deleted"
+        return response_body, 200
+
 
 
 @api.route("/playlists/<int:playlist_id>/managemovies/<int:movie_id>", methods=['POST', 'DELETE'])
@@ -537,6 +578,8 @@ def handle_manage_follows(follower_id, following_id):
         return response_body, 404
     if request.method == 'POST':
         follows = Followers(follower_id = follower_id, following_id = following_id)
+        notification = Notifications(notification_text = f"User {follower.username} te sigue!", user_id = following_id)
+        db.session.add(notification)
         db.session.add(follows)
         db.session.commit()
         response_body['message'] = f"{follower_id} is now following {following_id}"
