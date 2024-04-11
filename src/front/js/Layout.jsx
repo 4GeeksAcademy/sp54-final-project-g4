@@ -14,6 +14,7 @@ import { Carroussel } from "./component/Carroussel.jsx";
 import { Buscador } from "./pages/Buscador.jsx";
 import { Profile } from "./pages/Profile.jsx";
 import { MovieDetails } from "./pages/MovieInfo.jsx";
+import { Movies } from "./pages/Movies.jsx";
 
 // Create your first component
 const Layout = () => {
@@ -36,6 +37,7 @@ const Layout = () => {
                         <Route element={<Buscador />} path="/buscador" />
                         <Route element={<MovieDetails />} path="/movie/:movieid" />
                         <Route element={<Profile />} path="/profile/:username" />
+                        <Route element={<Movies />} path="/movies" />
                     </Routes>
                     <Footer />
                 </ScrollToTop>

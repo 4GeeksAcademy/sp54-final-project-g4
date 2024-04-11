@@ -3,7 +3,7 @@ import { Context } from '../store/appContext.js'
 import { Link, useNavigate } from "react-router-dom";
 import { Signup } from "./Signup.jsx";
 import { Login } from "./Login.jsx";
-
+import startraillogo from "../../img/Star-trail.png"
 import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
@@ -11,8 +11,6 @@ import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import { Notification } from "./Notification.jsx";
-
-
 
 
 export const Navigation = () => {
@@ -26,11 +24,14 @@ export const Navigation = () => {
     navigate("/profile/" + response.results.username)
   }
 
-
   const handleSignout = async () => {
     actions.signedOut()
     navigate("/")
   }
+
+  // const search = () => {
+    
+  // }
 
   return (
     <Navbar expand="lg" variant="dark" bg="dark" className="bg-gradient p-0">
@@ -38,7 +39,7 @@ export const Navigation = () => {
         <Navbar.Brand href="/" >
           <img
             alt=""
-            src="/img/logo.svg"
+            src={startraillogo}
             width="30"
             height="30"
             className="d-inline-block align-top"
@@ -54,26 +55,28 @@ export const Navigation = () => {
             navbarScroll
           >
             <Nav.Link href="/" >Home</Nav.Link>
-            <NavDropdown title="Menu" >
-              <NavDropdown.Item href="series">Series</NavDropdown.Item>
-              <NavDropdown.Item href="movies">
+            {/* <NavDropdown title="Menu" >
+            
+              <NavDropdown.Item href="movie">
                 Movies
               </NavDropdown.Item>
               <NavDropdown.Divider />
-              <NavDropdown.Item href="watchlist">
+              <NavDropdown.Item href="watchlist" disabled>
                 Watchlist
               </NavDropdown.Item>
-            </NavDropdown>
+            </NavDropdown> */}
           </Nav>
-          <Form className="d-flex">
+
+          {/* <Form className="d-flex">
             <Form.Control
               type="search"
               placeholder="Search"
               className="me-2"
               aria-label="Search"
             />
-            <Button variant="outline-success me-2">Search</Button>
-          </Form>
+            <Button onClick={search} href="buscador" variant="outline-success me-2">Search</Button>
+          </Form> */}
+
           <Nav>
           
             {store.isLogin ?
@@ -83,7 +86,7 @@ export const Navigation = () => {
             }
           </Nav>
 
-          <Nav.Link href="#" className="text-light mx-2">
+          <Nav.Link href="#" className="text-light mx-1">
             {store.isLogin ?
               <p onClick={() => handleSignout()} className="p-0 mt-3">Logout</p>
               :
