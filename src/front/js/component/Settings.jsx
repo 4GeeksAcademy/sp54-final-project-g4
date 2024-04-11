@@ -1,43 +1,58 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Navigate, useParams } from "react-router-dom";
+import { Navigate, useParams, useNavigate } from "react-router-dom";
 import { Context } from "../store/appContext";
 import { Modal, Button } from "react-bootstrap";
 
 export const Settings = ({ show, handleClose }) => {
 
     const { actions, store } = useContext(Context);
+    const [privacy, setPrivacy] = useState(false)
     const [infoProfile, setInfoProfile] = useState({
         "credits": 0,
         "email": "",
         "followers": [],
         "followings": [],
         "referral_code": "",
-        "bio":"",
+        "bio": "",
         "is_active": true,
-        "username": ""
-
+        "username": "",
+        "settings": [/* {
+            "setting_name": "Privacy",
+            "setting_value": false
+        } */]
     });
     const params = useParams();
+    const navigate = useNavigate()
+
+
+    const handleInputChange = (event) => {
+        setInfoProfile({ ...infoProfile, [event.target.name]: event.target.value })
+    };
 
     const handleEditProfile = async () => {
         const editProfile = {
             "username": infoProfile.username,
             "email": infoProfile.email,
-            "bio": infoProfile.bio 
+            "bio": infoProfile.bio
         }
         try {
-            const response = await actions.editUser(params.username, editProfile)
-            console.log('Perfil updated:', response);
-            setInfoProfile(response.results)
+            const confirmUpdate = window.confirm("You will be logged out to update your user profile.")
+            if (confirmUpdate) {
+                const response = await actions.editUser(params.username, editProfile)
+                alert(response.message)
+                actions.signedOut()
+                navigate("/")
+
+            }
         } catch (error) {
             console.error('Error al actualizar el perfil')
         }
     }
 
-    const handleIsActiveStatus =  async () => {
+    const handleIsActiveStatus = async () => {
         const confirmDelete = window.confirm("Are you sure you want to deactivate your account?")
-        if(confirmDelete){
-            const response = await actions.editUser(params.username, {"is_active": infoProfile.is_active == true ? false : true})
+        if (confirmDelete) {
+            const response = await actions.editUser(params.username, { "is_active": infoProfile.is_active == true ? false : true })
             alert(response.message)
             window.location.reload(true)
         }
@@ -45,6 +60,9 @@ export const Settings = ({ show, handleClose }) => {
     const getProfile = async () => {
         const response = await actions.getUser(params.username)
         setInfoProfile(response.results)
+        console.log(privacy)
+        const privacySetting = response.results.settings.find(obj => obj.setting_name == 'privacy');
+        setPrivacy(privacySetting.setting_value == 'private' ? true : false)
         console.log(response.results);
     }
 
@@ -70,10 +88,10 @@ export const Settings = ({ show, handleClose }) => {
                             <div className="accordion-body">
                                 <div className="input-group flex-nowrap">
                                     <span className="input-group-text" id="addon-wrapping">@</span>
-                                    <input type="text" className="form-control" placeholder="Username" aria-label="Username" aria-describedby="addon-wrapping" value={params.username}/>
+                                    <input type="text" className="form-control" placeholder="Username" aria-label="Username" aria-describedby="addon-wrapping" value={infoProfile.username} name="username" onChange={handleInputChange} />
                                 </div>
                                 <div className="my-3">
-                                    <textarea className="form-control" placeholder="Change your bio!" id="exampleFormControlTextarea1" rows="3"></textarea>
+                                    <textarea className="form-control" placeholder="Change your bio!" id="exampleFormControlTextarea1" rows="3" value={infoProfile.bio} name="bio" onChange={handleInputChange} type="text"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -87,7 +105,7 @@ export const Settings = ({ show, handleClose }) => {
                         <div id="flush-collapseTwo" className="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
                             <div className="accordion-body">
                                 <div className="form-floating">
-                                    <input type="email" className="form-control" id="floatingInput" placeholder="name@example.com" />
+                                    <input type="email" className="form-control" id="floatingInput" placeholder="name@example.com" value={infoProfile.email} onChange={handleInputChange} name="email" />
                                     <label for="floatingInput">E-mail</label>
                                 </div>
                                 <div className="form-floating mt-2 ">
@@ -96,7 +114,8 @@ export const Settings = ({ show, handleClose }) => {
                                 </div>
 
                                 <div className="form-check form-switch mt-3">
-                                    <input className="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" />
+                                    {infoProfile.settings}
+                                    <input className="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" checked={privacy} onChange={() => setPrivacy(!privacy)} /> 
                                     <label className="form-check-label" for="flexSwitchCheckDefault">Private Account</label>
                                 </div>
                             </div>
@@ -117,13 +136,13 @@ export const Settings = ({ show, handleClose }) => {
                         </div>
                     </div>
                     <div className="d-flex justify-content-center mt-2">
-                        {infoProfile.is_active == true ? 
-                        <Button className="text-light text-center btn-danger btn-sm" onClick={() => handleIsActiveStatus()}>Delete Account</Button> : 
-                        <Button className="text-light text-center btn-succesful btn-sm" onClick={() => handleIsActiveStatus()}>Reactivate Account</Button>}
+                        {infoProfile.is_active == true ?
+                            <Button className="text-light text-center btn-danger btn-sm" onClick={() => handleIsActiveStatus()}>Delete Account</Button> :
+                            <Button className="text-light text-center btn-succesful btn-sm" onClick={() => handleIsActiveStatus()}>Reactivate Account</Button>}
                     </div>
                 </div>
             </Modal.Body>
-            <Modal.Footer>
+            <Modal.Footer onSubmit={handleEditProfile}>
                 <button type="button" className="btn btn-secondary" onClick={handleClose}>Close</button>
                 <button type="button" className="btn btn-primary" onClick={handleEditProfile}>Save changes</button>
             </Modal.Footer>
