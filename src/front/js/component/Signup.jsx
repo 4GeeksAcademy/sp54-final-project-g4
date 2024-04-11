@@ -14,11 +14,19 @@ export const Signup = () => {
     })
 
     const handleInputChange = (event) => {
-        setFormData({ ...formData, [event.target.name]: event.target.value })
+        const { name, value } = event.target;
+        if (name === 'password' && value.length > 8) {
+            return;
+        }
+        setFormData({ ...formData, [name]: value.trim() });
     };
 
     const handleSubmit = async (event) => {
         event.preventDefault();
+        if (formData.password.length !== 8) {
+            alert("Password must be exactly 8 characters long.");
+            return; 
+        }
         if (confirmPassword === formData.password) {
             const response = await actions.signup(formData)
             response ? alert(response) : alert("Credentials are invalid!")
@@ -57,7 +65,7 @@ export const Signup = () => {
 
                 <Form.Group className="my-3" controlId="formBasicPassword">
                     <Form.Label>Password *</Form.Label>
-                    <Form.Control type="password" placeholder="Password" name='password' value={formData.password} onChange={(e) => handleInputChange(e)} required />
+                    <Form.Control type="password" placeholder="Password" name='password' value={formData.password} onChange={(e) => handleInputChange(e)} maxLength={8} required />
                 </Form.Group>
 
                 <Form.Group className="my-3" controlId="formBasicConfirmPassword">
