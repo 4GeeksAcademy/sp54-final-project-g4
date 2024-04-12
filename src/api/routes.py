@@ -184,6 +184,24 @@ def handle_users_info(username):
     return response_body, 405
 
 
+@api.route('/users/id/<int:user_id>', methods=['GET'])
+@jwt_required(optional=True)
+def handle_users_id_info(user_id):
+    response_body = {}
+    current_user = get_jwt_identity()
+    user = db.session.execute(db.select(Users).where(Users.id == user_id)).scalar()
+    if not user:
+        response_body['message'] = f"{user_id} not found."
+        return response_body, 200
+
+    if request.method == 'GET':
+        response_body['results'] = user.serialize() if current_user and (current_user['id'] == user.id or current_user['role'] == 'admin') else user.serialize_public()
+        response_body['message'] = f"{user_id} obtained."
+        return response_body, 200
+    response_body['message'] = "Method not allowed."
+    return response_body, 405
+
+
 @api.route("/movies", methods=['GET','POST'])
 @jwt_required(optional=True)
 def handle_movies():
