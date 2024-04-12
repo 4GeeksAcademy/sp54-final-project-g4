@@ -2,12 +2,11 @@ import React, { useContext, useEffect, useState } from "react";
 import { Navigate, useParams, useNavigate } from "react-router-dom";
 import { Context } from "../store/appContext";
 import { Modal, Button, Form } from "react-bootstrap";
+import { ModalPassword } from "./ModalPassword.jsx";
 
-export const Settings = ({ show, handleClose }) => {
+export const Settings = ({ show = false, handleClose }) => {
 
     const { actions, store } = useContext(Context);
-    const [confirmPassword, setConfirmPassword] = useState('')
-    const [newPassword, setNewPassword] = useState("")
     const [showPasswordEdit, setShowPasswordEdit] = useState(false);
     const [privacy, setPrivacy] = useState(false);
     const [infoProfile, setInfoProfile] = useState({
@@ -26,20 +25,6 @@ export const Settings = ({ show, handleClose }) => {
     });
     const params = useParams();
     const navigate = useNavigate()
-
-
-    const handleSavePassword = async (event) => {
-        event.preventDefault();
-        const confirmUpdate = window.confirm("You will be logged out to update your user profile.")
-        if ((confirmPassword === newPassword) && (confirmUpdate)) {
-            const response = await actions.editUser(infoProfile.username, {"password": newPassword})
-            setConfirmPassword('')
-            alert(response.message)
-            window.location.reload(true)
-        } else {
-            alert("Passwords doesn't match")
-        }
-    }
 
     const handleOpenPassword = () => {
         setShowPasswordEdit(true)
@@ -63,8 +48,9 @@ export const Settings = ({ show, handleClose }) => {
         try {
             const confirmUpdate = window.confirm("You will be logged out to update your user profile.")
             if (confirmUpdate) {
-                const response = await actions.editUser(infoProfile.username, editProfile);
-                await actions.editSetting(infoProfile.id, "privacy", { "setting_value": privacy })
+                const response = await actions.editUser(params.username, editProfile);
+                const privacyBool = privacy == true ? "private" : "public"
+                await actions.editSetting(infoProfile.id, "privacy", { "setting_value": privacyBool })
                 alert(response.message)
                 actions.signedOut()
                 navigate("/")
@@ -85,11 +71,10 @@ export const Settings = ({ show, handleClose }) => {
     }
     const getProfile = async () => {
         const response = await actions.getUser(params.username)
-        setInfoProfile(response.results)
-        console.log(privacy)
         const privacySetting = response.results.settings.find(obj => obj.setting_name == 'privacy');
+        console.log(privacySetting)
+        setInfoProfile(response.results)
         setPrivacy(privacySetting.setting_value == 'private' ? true : false)
-        console.log(response.results);
     }
 
     useEffect(() => {
@@ -133,7 +118,7 @@ export const Settings = ({ show, handleClose }) => {
                                 <div className="accordion-body">
                                     <div className="form-floating">
                                         <input type="email" className="form-control" id="floatingInput" placeholder="name@example.com" value={infoProfile.email} onChange={handleInputChange} name="email" />
-                                        <label for="floatingInput">E-mail</label>
+                                        <label htmlFor="floatingInput">E-mail</label>
                                     </div>
                                     <div className="form-floating my-3 mx-3 ">
                                         <button type="btn" className="btn btn-sm btn-danger" onClick={handleOpenPassword}>
@@ -143,7 +128,7 @@ export const Settings = ({ show, handleClose }) => {
 
                                     <div className="form-check form-switch mt-3">
                                         <input className="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" checked={privacy} onChange={() => setPrivacy(!privacy)} />
-                                        <label className="form-check-label" for="flexSwitchCheckDefault">Credits Private</label>
+                                        <label className="form-check-label" htmlFor="flexSwitchCheckDefault">Credits Private</label>
                                     </div>
                                 </div>
                             </div>
@@ -169,37 +154,12 @@ export const Settings = ({ show, handleClose }) => {
                         </div>
                     </div>
                 </Modal.Body>
-                <Modal.Footer onSubmit={handleEditProfile}>
+                <Modal.Footer>
                     <button type="button" className="btn btn-secondary" onClick={handleClose}>Close</button>
                     <button type="button" className="btn btn-primary" onClick={handleEditProfile}>Save changes</button>
                 </Modal.Footer>
             </Modal>
-
-            {/* Modal de la Password */}
-
-            <Modal show={showPasswordEdit} onHide={handleClosePassword} centered>
-                <Modal.Header closeButton>
-                    <Modal.Title>Edit Password</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <Form>
-                        <Form.Group className="my-3" controlId="formBasicPassword">
-                            <Form.Label>Password *</Form.Label>
-                            <Form.Control type="password" placeholder="Password" name='password' value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required />
-                        </Form.Group>
-
-                        <Form.Group className="my-3" controlId="formBasicConfirmPassword">
-                            <Form.Label>Confirm Password *</Form.Label>
-                            <Form.Control type="password" placeholder="Confirm Password" name='confirmPassword' value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
-                        </Form.Group>
-
-                    </Form>
-                </Modal.Body>
-                <Modal.Footer onSubmit={handleEditProfile}>
-                    <button type="button" className="btn btn-secondary" onClick={handleClosePassword}>Close</button>
-                    <button type="button" className="btn btn-primary" onClick={handleSavePassword}>Save changes</button>
-                </Modal.Footer>
-            </Modal>
+            <ModalPassword username={infoProfile.username} show={showPasswordEdit} handleClose={handleClosePassword} />
         </>
     );
 };
