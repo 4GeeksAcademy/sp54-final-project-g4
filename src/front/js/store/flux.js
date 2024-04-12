@@ -52,6 +52,10 @@ const getState = ({ getStore, getActions, setStore }) => {
 				return null
 			},
 
+			checkPassword: async (data) => {
+				return await getActions().APICall('check-password/', await getActions().optionsMethod('POST', data))
+			},
+
 			signup: async (data) => {
 				const response = await getActions().APICall('signup/', await getActions().optionsMethod('POST', data));
 				if (typeof response == 'object') {
