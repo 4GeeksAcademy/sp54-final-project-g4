@@ -14,10 +14,10 @@ export const Profile = () => {
             "followers": [],
             "followings": [],
             "is_active": true,
-            "username": ""
-        
+            "username": "",
+            "settings":[]
     })
-    
+    const [privacy, setPrivacy] = useState(false)
     const [isSameUser, setIsSameUser] = useState(false)
     const [show, setShow] = useState(false)
     const params = useParams(); // esto es igual a : es lo que va dentro de Params 
@@ -33,7 +33,8 @@ export const Profile = () => {
     const getProfile = async () => {
         const response = await actions.getUser(params.username)
         setInfoProfile(response.results)
-        console.log(response.results);
+        const privacySetting = response.results.settings.find(obj => obj.setting_name == 'privacy');
+        setPrivacy(privacySetting.setting_value == 'private' ? true : false)
     }
     
 
@@ -74,7 +75,7 @@ export const Profile = () => {
                         <h1 className="mt-3">{params.username} {infoProfile.is_active == false ? 
                             <span className="mx-2 text-danger fw-bold">Account deactivated</span>
                             : ""}</h1> 
-                        {isSameUser ? (
+                        {isSameUser || privacy == false ? (
                             <p className="fw-bold fs-6 text-warning">credits {infoProfile.credits} <i className="fa-solid fa-coins ms-1"></i></p>
                         ) : null}
                         <div className="d-flex justify-content-inline mt-5">
