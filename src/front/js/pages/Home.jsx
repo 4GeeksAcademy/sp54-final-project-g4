@@ -1,26 +1,75 @@
-import React, { useContext } from "react";
-import { Context } from "../store/appContext.js";
-import rigoImageUrl from "../../img/rigo-baby.jpg";
-import "../../styles/home.css";
+import React, { useContext, useEffect, useState } from "react";
+import { Carousel } from 'react-bootstrap';
+import { Context } from "../store/appContext";
+import { useNavigate } from "react-router-dom";
 
 export const Home = () => {
-  const { store, actions } = useContext(Context);
+  const { actions, store } = useContext(Context)
+  const [index, setIndex] = useState(0);
+  const [movieList, setMovieList] = useState([]);
+  const [miniMovieList1, setMiniMovieList1] = useState([]);
+  const [miniMovieList2, setMiniMovieList2] = useState([]);
+  const [indexSecondary, setIndexSecondary] = useState(0);
+
+  const navigate = useNavigate()
+
+  const handleSelect = (selectedIndex) => {
+    setIndex(selectedIndex)
+    setIndexSecondary(Math.floor(selectedIndex / 4))
+  };
+
+  const getMovies = async () => {
+    const response = await actions.getMovies()
+    const movies = response.results.slice(-8)
+    setMovieList(movies)
+    setMiniMovieList1(movies.slice( 0, 4 ))
+    setMiniMovieList2(movies.slice( 4, 8 ))
+  }
+
+  const handleSelect2 = (selectedIndex) => {
+    setIndexSecondary(selectedIndex)
+    setIndex(Math.floor(selectedIndex * 4))
+  };
+
+  const handleClick = (selectedIndex) => {
+    // Logica
+  };
+
+  useEffect(() => {
+    getMovies()
+  }, [])
 
   return (
-    <div className="text-center mt-5">
-      <h1>Hello Rigo!!</h1>
-      <p>
-        <img src={rigoImageUrl} />
-      </p>
-      <div className="alert alert-info">
-        {store.message || "Loading message from the backend (make sure your python backend is running)..."}
-      </div>
-      <p>
-        This boilerplate comes with lots of documentation:{" "}
-        <a href="https://start.4geeksacademy.com/starters/react-flask">
-          Read documentation
-        </a>
-      </p>
+    <div className="bg-dark">
+      <Carousel interval={10000} activeIndex={index} onSelect={handleSelect} className="container" style={{ maxWidth: '1500px', maxHeight:'450px' }}>
+        {movieList.map((movie, index) => (
+          <Carousel.Item key={index} >
+            <img src={movie.cover_url ?? 'https://placehold.co/800x300'} style={{ height: "450px" }} onClick={() => navigate('/movie/'+movie.id)} className='d-block w-100' />
+            <Carousel.Caption className="text-dark">
+              <h3>{movie.title}</h3>
+            </Carousel.Caption>
+          </Carousel.Item>
+        ))}
+      </Carousel>
+
+
+      <Carousel interval={null} activeIndex={indexSecondary} onSelect={handleSelect2} className="container" style={{ maxWidth: '1500px' }}>
+        <Carousel.Item>
+          <div className="d-flex justify-content-center">
+          {miniMovieList1.map((movie, index) => (
+            <span><img key={index} src={movie.cover_url ?? 'https://placehold.co/800x300'} className="m-3" onClick={() => handleSelect(index)} style={{ width: "300px", height: "200px" }} /></span>
+          ))}
+          </div>
+        </Carousel.Item>
+        <Carousel.Item >
+          <div className="d-flex justify-content-center">
+          {miniMovieList2.map((movie, index) => (
+            <span><img key={index} src={movie.cover_url ?? 'https://placehold.co/800x300'} className="m-3" onClick={() => handleSelect(index+4)} style={{ width: "300px", height: "200px" }} /></span>
+          ))}
+          </div>
+        </Carousel.Item>
+      </Carousel>
+
     </div>
   );
-};
+}

@@ -1,12 +1,13 @@
 import React, { useState, useContext } from "react";
 import { Context } from "../store/appContext";
-import { Button, Form, Modal }from 'react-bootstrap';
+import { Button, Form, Modal } from 'react-bootstrap';
 
+// https://www.aunitz.net/tip-18-botones-aceptar-cancelar-orden/
 export const Login = ({ show = false }) => {
 
     const { store, actions } = useContext(Context)
     const [formData, setFormData] = useState({
-        email: '',
+        username_email: '',
         password: '',
     });
 
@@ -16,8 +17,26 @@ export const Login = ({ show = false }) => {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        actions.signin(formData)
+        let dataTobeSent = {
+            username: null,
+            email: null,
+            password: null,
+        };
+        formData.username_email.includes('@') ?
+            dataTobeSent = { email: formData.username_email, password: formData.password } :
+            dataTobeSent = { username: formData.username_email, password: formData.password }
+        const response = await actions.login(dataTobeSent)
+        response ? alert(response) : alert("Credentials are invalid!")
+        setFormData({ username_email: '', password: '' })
+        actions.showModalSignin(false);
+        window.location.reload(true)
+    }
+
+    const handleSwitch = (e) => {
+        e.preventDefault();
+        setFormData({ username_email: '', password: '' })
         actions.showModalSignin(false)
+        actions.showModalSignup(true)
     }
 
     const handleCancel = () => {
@@ -28,16 +47,17 @@ export const Login = ({ show = false }) => {
         <Modal show={store.showModalSignin}>
             <Form onSubmit={handleSubmit} className="m-3">
                 <Form.Group className="my-3" controlId="formBasicEmail">
-                    <Form.Label>Email address *</Form.Label>
-                    <Form.Control type="email" placeholder="Enter email" name='email' value={formData.email} onChange={(e) => handleInputChange(e)} required />
+                    <Form.Label>Username or address</Form.Label>
+                    <Form.Control type="text" placeholder="Enter username or email" name='username_email' value={formData.username_email} onChange={(e) => handleInputChange(e)} required />
                 </Form.Group>
 
                 <Form.Group className="my-3" controlId="formBasicPassword">
-                    <Form.Label>Password *</Form.Label>
+                    <Form.Label>Password</Form.Label>
                     <Form.Control type="password" placeholder="Password" name='password' value={formData.password} onChange={(e) => handleInputChange(e)} required />
                 </Form.Group>
 
                 <Form.Group className="text-center mt-5">
+                    <p>You don't have an account? <a href='#' onClick={(e) => handleSwitch(e)}>Click here to register!</a></p>
                     <Button className="mx-2 px-2" variant="danger" type="button" onClick={handleCancel}>
                         Cancel
                     </Button>
