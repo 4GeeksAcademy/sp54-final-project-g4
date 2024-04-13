@@ -55,6 +55,7 @@ export const Navigation = () => {
             navbarScroll
           >
             <Nav.Link href="/" >Home</Nav.Link>
+            <Nav.Link href="/movies" >Movies</Nav.Link>
             {/* <NavDropdown title="Menu" >
             
               <NavDropdown.Item href="movie">

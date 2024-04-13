@@ -1,3 +1,5 @@
+import { jwtDecode } from 'jwt-decode';
+
 const getState = ({ getStore, getActions, setStore }) => {
 	return {
 		store: {
@@ -16,7 +18,6 @@ const getState = ({ getStore, getActions, setStore }) => {
 			// API Handler
 			APICall: async (url, options) => {
 				try {
-					console.log('Data in APICall: ', url, options)
 					const response = await fetch(getStore().baseURL + url, options);
 					if (!response.ok) {
 						console.error('Error: ' + response.status, response.statusText);
@@ -50,6 +51,10 @@ const getState = ({ getStore, getActions, setStore }) => {
 					return response.message
 				}
 				return null
+			},
+
+			checkPassword: async (data) => {
+				return await getActions().APICall('check-password/', await getActions().optionsMethod('POST', data))
 			},
 
 			signup: async (data) => {
@@ -195,6 +200,13 @@ const getState = ({ getStore, getActions, setStore }) => {
 			},
 
 			// Functions for the website
+			checkTokenExpiration: (token) => {
+				const decodedToken = jwtDecode(token);
+				const expirationDate = decodedToken.exp * 1000;
+				const currentTimestamp = Date.now();
+				return expirationDate > currentTimestamp;
+			},
+
 			signedIn: () => {
 				setStore({ isLogin: true });
 			},

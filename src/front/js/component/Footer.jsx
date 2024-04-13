@@ -2,7 +2,7 @@ import React from "react";
 
 
 export const Footer = () => (
-  <footer className="footer mt-auto py-3 text-center bg-dark bg-gradient">
+  <footer className="footer d-flex flex-column py-3 text-center bg-dark bg-gradient min-vh-50">
     {/* <section className="d-flex justify-content-center justify-content-lg-between p-4 border-bottom">
       <div className="me-5 d-none d-lg-block">
         <span>Get connect with us!</span>

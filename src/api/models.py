@@ -78,6 +78,7 @@ class Users(db.Model):
                 'referred_by': self.referred_by,
                 'role': self.role,
                 'bio': self.bio,
+                'credits': self.credits,
                 'is_active': self.is_active,
                 'reviews': [row.serialize() for row in self.reviews],
                 'playlist': [row.serialize() for row in self.playlist],

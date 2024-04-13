@@ -32,8 +32,8 @@ export const Movies = () => {
         <div className="container">
             <div className="row d-flex align-item-strech">
                 {movieList.map((peli, index)=>(
-                    <div className="col-3">
-                        <Card onClick={()=> navigate('/movie/' + peli.id)} key={index} className="m-5" style={{ width: '18rem'}}>
+                    <div className="col-3" key={index}>
+                        <Card onClick={()=> navigate('/movie/' + peli.id)} className="m-5" style={{ width: '18rem'}}>
                             <Card.Img variant="top" src={peli.cover_url ?? "https://placehold.co/400x600"} />
                             <Card.Body  className="bg-gradient bg-dark rounded-bottom" >
                                 <Card.Title className="text-truncate text-white">

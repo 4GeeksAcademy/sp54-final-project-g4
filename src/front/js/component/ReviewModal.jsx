@@ -22,7 +22,7 @@ export const ReviewModal = (props) => {
                  "review_text": reviewText
              })
              alert(response.message)
-             props.onHide()
+             window.location.reload(true)
         } else {
             alert("You must be logged in to post a review!")
             actions.showModalSignin(true)

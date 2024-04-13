@@ -4,7 +4,7 @@ import 'react-multi-carousel/lib/styles.css';
 
 // $ npm install react-multi-carousel --save (instalar)
 
-export const Carroussel = () => {
+export const Carrousel = () => {
 
 
     const responsive = {
@@ -28,7 +28,7 @@ export const Carroussel = () => {
     };
 
     return (
-        <div className="container">
+        <div className="container mt-auto">
             <Carousel responsive={responsive} >
                 <div><img src="https://placehold.co/150x200" /></div>
                 <div><img src="https://placehold.co/150x200" /></div>

@@ -9,9 +9,8 @@ import { Footer } from "./component/Footer.jsx";
 // Import custom pages
 import { Home } from "./pages/Home.jsx";
 import { Demo } from "./pages/Demo.jsx";
+import { Error404 } from "./pages/404.jsx";
 import { Single } from "./pages/Single.jsx";
-import { Carroussel } from "./component/Carroussel.jsx";
-import { Buscador } from "./pages/Buscador.jsx";
 import { Profile } from "./pages/Profile.jsx";
 import { MovieDetails } from "./pages/MovieInfo.jsx";
 import { Movies } from "./pages/Movies.jsx";
@@ -32,14 +31,12 @@ const Layout = () => {
                         <Route element={<Home />} path="/" />
                         <Route element={<Demo />} path="/demo" />
                         <Route element={<Single />} path="/single/:theid" />
-                        <Route element={<h1>Not found!</h1>} />
-                        <Route element={<Carroussel />} path="/carrussel" />
-                        <Route element={<Buscador />} path="/buscador" />
                         <Route element={<MovieDetails />} path="/movie/:movieid" />
                         <Route element={<Profile />} path="/profile/:username" />
                         <Route element={<Movies />} path="/movies" />
+                        <Route element={<Error404 />} path="*" />
                     </Routes>
-                    <Footer />
+                    <Footer className="mt-auto"/>
                 </ScrollToTop>
             </BrowserRouter>
         </div>

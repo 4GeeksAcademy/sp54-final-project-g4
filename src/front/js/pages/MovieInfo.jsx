@@ -4,6 +4,7 @@ import { Context } from '../store/appContext';
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 import { Spinner } from "../component/Spinner.jsx";
 import { ReviewModal } from "../component/ReviewModal.jsx"
+import { Review } from "../component/Review.jsx"
 
 export const MovieDetails = () => {
     const { store, actions } = useContext(Context);
@@ -18,7 +19,7 @@ export const MovieDetails = () => {
         "release_date": "Tue, 31 Dec 2024 00:00:00 GMT",
         "sinopsis": "sinopsis",
         "tags": [],
-        "title": "",
+        "title": "placeholder",
         "trailer_url": ""
     });
     const params = useParams()
@@ -45,8 +46,12 @@ export const MovieDetails = () => {
         getMovieDetails();
     }, []);
 
-    return (
-        !movieDetails ? <Navigate to='/404' /> :
+    if (movieDetails.title == "placeholder") {
+        return <Spinner color="blue" />;
+    } else if (!movieDetails.title) {
+        return <Navigate to='/404' />;
+    } else {
+        return (
             <Container className="my-4">
                 <Row>
                     <Col md={4}>
@@ -67,16 +72,15 @@ export const MovieDetails = () => {
                             </Card.Footer>
                         </Card>
                     </Col>
-                    {!movieDetails.title ? <Spinner color="blue" /> :
-                        <Col md={5}>
-                            <h2>{movieDetails.title}</h2>
-                            <p>Director: {movieDetails.director}</p>
-                            <p>Release date: {movieDetails.release_date}</p>
-                            <p>Genre: {movieDetails.genre}</p>
-                            <h3>Sinopsis</h3>
-                            <p>{movieDetails.sinopsis}</p>
-                            <iframe width="560" height="315" src={movieDetails.trailer_url} title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen></iframe>
-                        </Col>}
+                    <Col md={5}>
+                        <h2>{movieDetails.title}</h2>
+                        <p>Director: {movieDetails.director}</p>
+                        <p>Release date: {movieDetails.release_date}</p>
+                        <p>Genre: {movieDetails.genre}</p>
+                        <h3>Sinopsis</h3>
+                        <p>{movieDetails.sinopsis}</p>
+                        <iframe width="560" height="315" src={movieDetails.trailer_url} title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen></iframe>
+                    </Col>
                     <Col md={3}>
                         {movieDetails.tags.length > 0 && movieDetails.tags.map((tag, index) => (
                             <Button className="m-2" key={index}>{tag.tag_name}</Button>
@@ -84,6 +88,12 @@ export const MovieDetails = () => {
                     </Col>
                 </Row>
                 <ReviewModal movie_id={params.movieid} show={modalStatus} score={selected} onHide={closeForm} />
+                <Row className="ms-auto d-flex align-items-end justify-content-end">
+                    <Col md={8}>
+                        <Review movie_id={params.movieid} />
+                    </Col>
+                </Row>
             </Container >
-    );
+        )
+    }
 }
