@@ -371,6 +371,13 @@ def handle_review_movie_user(movie_id, user_id):
                          user_id = user_id,
                          movie_id = movie_id,
                          is_active = True)
+        user = db.session.execute(db.select(Users).where(Users.id == user_id)).scalar()
+        user.credits = user.credits + 5
+        followers = db.session.execute(db.select(Followers).where(Followers.following_id == user_id))
+        for follower in followers:
+            follower_id = follower[0].follower_id
+            notification = Notifications(notification_text = f"{user_id} ha publicado una review!", user_id = follower_id)
+            db.session.add(notification)
         db.session.add(review)
         db.session.commit()
         response_body['message'] = f"Review added to user: {user_id} with rating {verified_rating}"
@@ -578,7 +585,7 @@ def handle_manage_follows(follower_id, following_id):
         return response_body, 404
     if request.method == 'POST':
         follows = Followers(follower_id = follower_id, following_id = following_id)
-        notification = Notifications(notification_text = f"User {follower.username} te sigue!", user_id = following_id)
+        notification = Notifications(notification_text = f"{follower.username} te sigue!", user_id = following_id)
         db.session.add(notification)
         db.session.add(follows)
         db.session.commit()

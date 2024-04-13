@@ -16,10 +16,7 @@ export const Settings = ({ show, handleClose }) => {
         "bio": "",
         "is_active": true,
         "username": "",
-        "settings": [/* {
-            "setting_name": "Privacy",
-            "setting_value": false
-        } */]
+        
     });
     const params = useParams();
     const navigate = useNavigate()
@@ -106,17 +103,16 @@ export const Settings = ({ show, handleClose }) => {
                             <div className="accordion-body">
                                 <div className="form-floating">
                                     <input type="email" className="form-control" id="floatingInput" placeholder="name@example.com" value={infoProfile.email} onChange={handleInputChange} name="email" />
-                                    <label for="floatingInput">E-mail</label>
+                                    <label htmlFor="floatingInput">E-mail</label>
                                 </div>
                                 <div className="form-floating mt-2 ">
                                     <input type="password" className="form-control" id="floatingPassword" placeholder="Password" />
-                                    <label for="floatingPassword">Password</label>
+                                    <label htmlFor="floatingPassword">Password</label>
                                 </div>
 
                                 <div className="form-check form-switch mt-3">
-                                    {infoProfile.settings}
-                                    <input className="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" checked={privacy} onChange={() => setPrivacy(!privacy)} /> 
-                                    <label className="form-check-label" for="flexSwitchCheckDefault">Private Account</label>
+                                    <input className="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" checked={privacy} onChange={(e) => setPrivacy(e.target.checked)}/> 
+                                    <label className="form-check-label" htmlFor="flexSwitchCheckDefault">Private Account</label>
                                 </div>
                             </div>
                         </div>

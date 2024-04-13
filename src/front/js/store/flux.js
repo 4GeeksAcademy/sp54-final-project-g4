@@ -1,3 +1,5 @@
+import { jwtDecode } from 'jwt-decode';
+
 const getState = ({ getStore, getActions, setStore }) => {
 	return {
 		store: {
@@ -191,6 +193,13 @@ const getState = ({ getStore, getActions, setStore }) => {
 			},
 
 			// Functions for the website
+			checkTokenExpiration: (token) => {
+				const decodedToken = jwtDecode(token);
+				const expirationDate = decodedToken.exp * 1000;
+				const currentTimestamp = Date.now();
+				return expirationDate > currentTimestamp;
+			},
+
 			signedIn: () => {
 				setStore({ isLogin: true });
 			},

@@ -20,7 +20,12 @@ const injectContext = (PassedComponent) => {
 
     useEffect(() => {
       if (localStorage.getItem('access_token')){
-        state.actions.signedIn()
+        const token = localStorage.getItem('access_token');
+        if (state.actions.checkTokenExpiration(token)) {
+          state.actions.signedIn()
+        } else {
+          state.actions.signedOut()
+        }
       }
     }, []);
 

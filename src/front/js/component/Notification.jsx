@@ -55,7 +55,7 @@ export const Notification = () => {
                                 <strong className="me-auto">{infoProfile.username}</strong>
                                 <small>{formatDate(noti.timestamp)}</small>
                             </Toast.Header>
-                            <Toast.Body>{noti.notification_text}</Toast.Body>
+                            <Toast.Body className="d-flex justify-content-between"><span className="text-start">{noti.notification_text}</span><span className="text-end">✔️</span></Toast.Body>
                         </Toast>
                     ))}
                 </ToastContainer>

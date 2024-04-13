@@ -2,6 +2,7 @@ import React, { useState, useContext } from "react";
 import { Context } from "../store/appContext";
 import { Button, Form, Modal } from 'react-bootstrap';
 
+// https://www.aunitz.net/tip-18-botones-aceptar-cancelar-orden/
 export const Login = ({ show = false }) => {
 
     const { store, actions } = useContext(Context)

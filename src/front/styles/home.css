@@ -7,6 +7,7 @@
 */
 @import url('https://fonts.googleapis.com/css?family=Montserrat:400,600,700');
 @import url('https://fonts.googleapis.com/css?family=Catamaran:400,800');
+
 .error-container {
   text-align: center;
   font-size: 180px;
@@ -95,12 +96,9 @@
     transform: rotateX(0);
   }
 }
-    
 
+/* 404 page */
 
-
-
-/* demo stuff */
 * {
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
@@ -128,6 +126,7 @@ h1 {
   text-align: center;
 }
 a.more-link {
+  cursor: pointer;
   text-transform: uppercase;
   font-size: 13px;
     background-color: #bbb;

@@ -46,7 +46,7 @@ export const MovieDetails = () => {
     }, []);
 
     return (
-        !movieDetails ? <Navigate to='/404' /> :
+        !movieDetails.title? <Navigate to='/404' /> :
             <Container className="my-4">
                 <Row>
                     <Col md={4}>
@@ -67,7 +67,7 @@ export const MovieDetails = () => {
                             </Card.Footer>
                         </Card>
                     </Col>
-                    {!movieDetails.title ? <Spinner color="blue" /> :
+                    {!movieDetails.is_active ? <Spinner color="blue" /> :
                         <Col md={5}>
                             <h2>{movieDetails.title}</h2>
                             <p>Director: {movieDetails.director}</p>
