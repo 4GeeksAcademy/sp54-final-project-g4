@@ -113,13 +113,30 @@ def login():
     response_body['message'] = "Method not allowed."
     return response_body, 405
 
+@api.route("/check-password", methods=["POST"])
+@jwt_required()
+def check_password():
+    response_body = {}
+    current_user = get_jwt_identity()
+    if request.method == 'POST':
+        password = request.json.get("password", None)
+        user = db.session.execute(db.select(Users).filter(Users.username.ilike(current_user['username']))).scalar()
+        if bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
+            response_body["message"] = f"Password is correct"
+            response_body["results"] = {'correct':True}
+            return response_body, 200
+        response_body["message"] = "Incorrect password."
+        response_body["results"] = {'correct':False}
+        return response_body, 200
+    response_body['message'] = "Method not allowed."
+    return response_body, 405
+
 @api.route("/check-current-user", methods=["GET"])
 @jwt_required()
 def check_current_user():
     response_body = {}
     current_user = get_jwt_identity()
     if request.method == 'GET':
-        print(current_user)
         response_body['message'] = f"El usuario es: {current_user['username']}"
         response_body['results'] = current_user
         return response_body, 200
@@ -646,7 +663,7 @@ def handle_user_settings(user_id, setting_name):
         if not (current_user['id'] == user_id) and not (current_user['role'] == 'admin'):
             response_body['message'] = f"You have no permissions to do that!"
             return response_body, 401
-        setting = db.session.execute(db.select(User_settings).filter(User_settings.setting_name.ilike(setting_name))).scalar()
+        setting = db.session.execute(db.select(User_settings).filter(User_settings.user_id == user_id, User_settings.setting_name.ilike(setting_name))).scalar()
         if not setting:
             response_body['message'] = f"Setting doesn't exists, cannot edit"
             return response_body, 400
@@ -661,9 +678,10 @@ def handle_user_settings(user_id, setting_name):
         for key, value in data.items():
             if hasattr(setting, key) and allowed_attributes.get(key, False):
                 setattr(setting, key, value)
+        print(setting.serialize())
         db.session.commit()
         response_body['message'] = "Setting updated"
-        return response_body, 405
+        return response_body, 200
     response_body['message'] = "Method not allowed."
     return response_body, 405
 
