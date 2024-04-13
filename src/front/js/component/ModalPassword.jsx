@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Context } from "../store/appContext";
 import { Modal, Form } from "react-bootstrap";
 import { ModalConfirmPassword } from './ModalConfirmPassword.jsx';
@@ -46,6 +46,15 @@ export const ModalPassword = ({ username, show = false, handleClose }) => {
 
         handleCloseConfirm();
     }
+    useEffect(() => {
+    }, [])
+
+    // Esto puede causar bugs, aun sin testear bien
+    useEffect(() => {
+        if (isPasswordCorrect) {
+            handleSavePassword();
+        }
+    }, [isPasswordCorrect])
 
     return (
         <>

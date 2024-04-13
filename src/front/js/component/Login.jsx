@@ -29,6 +29,7 @@ export const Login = ({ show = false }) => {
         response ? alert(response) : alert("Credentials are invalid!")
         setFormData({ username_email: '', password: '' })
         actions.showModalSignin(false);
+        window.location.reload(true)
     }
 
     const handleSwitch = (e) => {

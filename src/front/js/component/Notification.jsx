@@ -19,6 +19,10 @@ export const Notification = () => {
 
     const toggleShowA = () => setShowA(!showA);
 
+    const deleteNoti = async (notification_id) => {
+        actions.deleteNotification(infoProfile.id, notification_id)
+        getProfile()
+    }  
 
     const getProfile = async () => {         
         const response = await actions.getUserLoggedIn()  
@@ -28,8 +32,7 @@ export const Notification = () => {
     }
 
     useEffect(() => {         
-        getProfile()         
-                      
+        getProfile()                   
     }, [])
 
     const formatDate = (timestamp) => {
@@ -49,13 +52,13 @@ export const Notification = () => {
                 <ToastContainer position="top-end" className="p-3 mt-5" style={{ zIndex: 1 }}>
                     {infoProfile.notifications && infoProfile.notifications.map((noti, index)=>(
 
-                        <Toast key={index} show={showA} onClose={toggleShowA}>
+                        <Toast key={index} show={showA} onClose={() => deleteNoti(noti.id)}>
                             <Toast.Header>
                                 <img src="holder.js/20x20?text=%20" className="rounded me-2" alt="" />
                                 <strong className="me-auto">{infoProfile.username}</strong>
                                 <small>{formatDate(noti.timestamp)}</small>
                             </Toast.Header>
-                            <Toast.Body className="d-flex justify-content-between"><span className="text-start">{noti.notification_text}</span><span className="text-end">✔️</span></Toast.Body>
+                            <Toast.Body className="d-flex justify-content-between">{noti.notification_text}</Toast.Body>
                         </Toast>
                     ))}
                 </ToastContainer>

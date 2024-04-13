@@ -1,16 +1,15 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { Context } from '../store/appContext.js'
-import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
+import { Link } from 'react-router-dom';
 
-export const Review = ({movie_id=1}) => {
+export const Review = ({movie_id}) => {
 
     const { store, actions } = useContext(Context)
     const [usernames, setUsernames] = useState({})
     const [review, setReview] = useState([])
 
     const getMovieInfo = async (id) => {
-        console.log(id)
         const response = await actions.getMovie(id)
         const reviewsWithUsernames = await Promise.all(response.results.reviews.map(async review => {
              const user = await actions.getUserId(review.user_id)
@@ -35,13 +34,13 @@ export const Review = ({movie_id=1}) => {
     return (
         <div >
             {review.map((notas, index)=>(
-                <Card key={index} className="col-lg-6 col-sm-3 col-md-6 bg-light m-3">
+                <Card key={index} className="my-4">
                     <Card.Header className="d-flex justify-content-between">
-                        <p><b>{notas.username}</b> <i className="fas fa-star" style={{"color": "#FFD43B"}}></i>{notas.rating}</p>
+                        <p><b><Link to={"/profile/"+notas.username}>{notas.username}</Link></b> <i className="fas fa-star" style={{"color": "#FFD43B"}}></i>{notas.rating}</p>
                         {/* <i className="fas fa-times text-secondary"></i> */}
                     </Card.Header>
                     <Card.Body>
-                        <Card.Text>
+                        <Card.Text className="pb-3 pt-1">
                             {notas.review_text}
                         </Card.Text>
                     </Card.Body>

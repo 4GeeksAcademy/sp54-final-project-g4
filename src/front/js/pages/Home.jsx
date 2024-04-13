@@ -1,14 +1,30 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Carousel } from 'react-bootstrap';
+import { Context } from "../store/appContext";
+import { useNavigate } from "react-router-dom";
 
 export const Home = () => {
+  const { actions, store } = useContext(Context)
   const [index, setIndex] = useState(0);
+  const [movieList, setMovieList] = useState([]);
+  const [miniMovieList1, setMiniMovieList1] = useState([]);
+  const [miniMovieList2, setMiniMovieList2] = useState([]);
   const [indexSecondary, setIndexSecondary] = useState(0);
+
+  const navigate = useNavigate()
 
   const handleSelect = (selectedIndex) => {
     setIndex(selectedIndex)
     setIndexSecondary(Math.floor(selectedIndex / 4))
   };
+
+  const getMovies = async () => {
+    const response = await actions.getMovies()
+    const movies = response.results.slice(-8)
+    setMovieList(movies)
+    setMiniMovieList1(movies.slice( 0, 4 ))
+    setMiniMovieList2(movies.slice( 4, 8 ))
+  }
 
   const handleSelect2 = (selectedIndex) => {
     setIndexSecondary(selectedIndex)
@@ -19,90 +35,37 @@ export const Home = () => {
     // Logica
   };
 
+  useEffect(() => {
+    getMovies()
+  }, [])
+
   return (
     <div className="bg-dark">
-      <Carousel interval={10000} activeIndex={index} onSelect={handleSelect} className="container" style={{ maxWidth: '1500px' }}>
-        <Carousel.Item >
-          <img src='https://placehold.co/800x300' onClick={() => handleClick(index)} className='d-block w-100' />
-          <Carousel.Caption className="text-dark">
-            <h3>Contact List</h3>
-            <p>Trabajo de <a href="https://4geeks.com/syllabus/spain-fs-pt-54/project/contact-list-context">4GeeksAcademy "Contact List"</a>.</p>
-          </Carousel.Caption>
-        </Carousel.Item>
-        <Carousel.Item>
-          <img src='https://placehold.co/800x300' onClick={() => handleClick(index)} className='d-block w-100' />
-          <Carousel.Caption className="text-dark">
-            <h3>Personajes</h3>
-            <p>Información sobre los personajes de StarWars.</p>
-            <p>Parte del trabajo de <a href="https://4geeks.com/syllabus/spain-fs-pt-54/project/starwars-blog-reading-list">4GeeksAcademy "Star Wars"</a></p>
-          </Carousel.Caption>
-        </Carousel.Item>
-        <Carousel.Item>
-          <img src='https://placehold.co/800x300' onClick={() => handleClick(index)} className='d-block w-100' />
-          <Carousel.Caption className="text-dark">
-            <h3>Planetas</h3>
-            <p>Información sobre los planetas de StarWars.</p>
-            <p>Parte del trabajo de <a href="https://4geeks.com/syllabus/spain-fs-pt-54/project/starwars-blog-reading-list">4GeeksAcademy "Star Wars"</a></p>
-          </Carousel.Caption>
-        </Carousel.Item>
-        <Carousel.Item>
-          <img src='https://placehold.co/800x300' onClick={() => handleClick(index)} className='d-block w-100' />
-          <Carousel.Caption className="text-dark">
-            <h3>Cacatuas</h3>
-            <p>Información sobre las cacatuas de StarWars.</p>
-            <p>Parte del trabajo de <a href="https://4geeks.com/syllabus/spain-fs-pt-54/project/starwars-blog-reading-list">4GeeksAcademy "Star Wars"</a></p>
-          </Carousel.Caption>
-        </Carousel.Item>
-        <Carousel.Item>
-          <img src='https://placehold.co/800x300' onClick={() => handleClick(index)} className='d-block w-100' />
-          <Carousel.Caption className="text-dark">
-            <h3>Cacatuas</h3>
-            <p>Información sobre las cacatuas de StarWars.</p>
-            <p>Parte del trabajo de <a href="https://4geeks.com/syllabus/spain-fs-pt-54/project/starwars-blog-reading-list">4GeeksAcademy "Star Wars"</a></p>
-          </Carousel.Caption>
-        </Carousel.Item>
-        <Carousel.Item>
-          <img src='https://placehold.co/800x300' onClick={() => handleClick(index)} className='d-block w-100' />
-          <Carousel.Caption className="text-dark">
-            <h3>Cacatuas</h3>
-            <p>Información sobre las cacatuas de StarWars.</p>
-            <p>Parte del trabajo de <a href="https://4geeks.com/syllabus/spain-fs-pt-54/project/starwars-blog-reading-list">4GeeksAcademy "Star Wars"</a></p>
-          </Carousel.Caption>
-        </Carousel.Item>
-        <Carousel.Item>
-          <img src='https://placehold.co/800x300' onClick={() => handleClick(index)} className='d-block w-100' />
-          <Carousel.Caption className="text-dark">
-            <h3>Cacatuas</h3>
-            <p>Información sobre las cacatuas de StarWars.</p>
-            <p>Parte del trabajo de <a href="https://4geeks.com/syllabus/spain-fs-pt-54/project/starwars-blog-reading-list">4GeeksAcademy "Star Wars"</a></p>
-          </Carousel.Caption>
-        </Carousel.Item>
-        <Carousel.Item>
-          <img src='https://placehold.co/800x300' onClick={() => handleClick(index)} className='d-block w-100' />
-          <Carousel.Caption className="text-dark">
-            <h3>Cacatuas</h3>
-            <p>Información sobre las cacatuas de StarWars.</p>
-            <p>Parte del trabajo de <a href="https://4geeks.com/syllabus/spain-fs-pt-54/project/starwars-blog-reading-list">4GeeksAcademy "Star Wars"</a></p>
-          </Carousel.Caption>
-        </Carousel.Item>
+      <Carousel interval={10000} activeIndex={index} onSelect={handleSelect} className="container" style={{ maxWidth: '1500px', maxHeight:'450px' }}>
+        {movieList.map((movie, index) => (
+          <Carousel.Item key={index} >
+            <img src={movie.cover_url ?? 'https://placehold.co/800x300'} style={{ height: "450px" }} onClick={() => navigate('/movie/'+movie.id)} className='d-block w-100' />
+            <Carousel.Caption className="text-dark">
+              <h3>{movie.title}</h3>
+            </Carousel.Caption>
+          </Carousel.Item>
+        ))}
       </Carousel>
 
 
       <Carousel interval={null} activeIndex={indexSecondary} onSelect={handleSelect2} className="container" style={{ maxWidth: '1500px' }}>
-        <Carousel.Item >
+        <Carousel.Item>
           <div className="d-flex justify-content-center">
-            <span><img src='https://placehold.co/800x300' className="m-3" onClick={() => handleSelect(0)} style={{ width: "300px", height: "200px" }} /></span>
-            <span><img src='https://placehold.co/800x300' className="m-3" onClick={() => handleSelect(1)} style={{ width: "300px", height: "200px" }} /></span>
-            <span><img src='https://placehold.co/800x300' className="m-3" onClick={() => handleSelect(2)} style={{ width: "300px", height: "200px" }} /></span>
-            <span><img src='https://placehold.co/800x300' className="m-3" onClick={() => handleSelect(3)} style={{ width: "300px", height: "200px" }} /></span>
+          {miniMovieList1.map((movie, index) => (
+            <span><img key={index} src={movie.cover_url ?? 'https://placehold.co/800x300'} className="m-3" onClick={() => handleSelect(index)} style={{ width: "300px", height: "200px" }} /></span>
+          ))}
           </div>
         </Carousel.Item>
         <Carousel.Item >
           <div className="d-flex justify-content-center">
-            <span><img src='https://placehold.co/800x300' className="m-3" onClick={() => handleSelect(4)} style={{ width: "300px", height: "200px" }} /></span>
-            <span><img src='https://placehold.co/800x300' className="m-3" onClick={() => handleSelect(5)} style={{ width: "300px", height: "200px" }} /></span>
-            <span><img src='https://placehold.co/800x300' className="m-3" onClick={() => handleSelect(6)} style={{ width: "300px", height: "200px" }} /></span>
-            <span><img src='https://placehold.co/800x300' className="m-3" onClick={() => handleSelect(7)} style={{ width: "300px", height: "200px" }} /></span>
+          {miniMovieList2.map((movie, index) => (
+            <span><img key={index} src={movie.cover_url ?? 'https://placehold.co/800x300'} className="m-3" onClick={() => handleSelect(index+4)} style={{ width: "300px", height: "200px" }} /></span>
+          ))}
           </div>
         </Carousel.Item>
       </Carousel>

@@ -94,6 +94,13 @@ export const Settings = ({ show = false, handleClose }) => {
         getProfile()
     }, [])
 
+    // Esto puede causar bugs, aun sin testear bien
+    useEffect(() => {
+        if (isPasswordCorrect) {
+            handleEditProfile()
+        }
+    }, [isPasswordCorrect])
+
 
     return (
         <>

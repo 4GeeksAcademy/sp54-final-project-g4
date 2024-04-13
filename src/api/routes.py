@@ -180,6 +180,7 @@ def handle_users_info(username):
             allowed_attributes = {'username': True,
                                   'password': True,
                                   'email': True,
+                                  'bio': True,
                                   'credits': current_user['role'] == 'admin',
                                   'role': current_user['role'] == 'admin',
                                   'is_active': True}
@@ -602,14 +603,15 @@ def handle_manage_notifications(user_id, notification_id):
 
 @api.route("/managefollows/<int:follower_id>/<int:following_id>", methods=['POST', 'DELETE'])
 @jwt_required()
+# Follower = Quien sigue
+# Following = A quien sigues
 def handle_manage_follows(follower_id, following_id):
     response_body = {}
     current_user = get_jwt_identity()
     user = db.session.execute(db.select(Users).where(Users.id == current_user['id'])).scalar()
-    if not (current_user['id'] == follower_id) and not (current_user['role'] == 'admin'):
+    if not (current_user['id'] == follower_id) or (current_user['role'] == 'admin'):
         response_body['message'] = f"You have no permissions to do that!"
         return response_body, 401
-
     follower = db.session.execute(db.select(Users).where(Users.id == follower_id)).scalar()
     if not follower:
         response_body['message'] = f"The 'follower' user doesn't exist!"
@@ -618,7 +620,12 @@ def handle_manage_follows(follower_id, following_id):
     if not following:
         response_body['message'] = f"The 'following' user doesn't exist!"
         return response_body, 404
+
     if request.method == 'POST':
+        follower_exist = db.session.execute(db.select(Followers).where(Followers.follower_id == follower_id, Followers.following_id == following_id)).scalar()
+        if follower_exist:
+            response_body['message'] = f"The 'follower' user already follows 'following' user!"
+            return response_body, 200
         follows = Followers(follower_id = follower_id, following_id = following_id)
         notification = Notifications(notification_text = f"{follower.username} te sigue!", user_id = following_id)
         db.session.add(notification)
@@ -628,7 +635,7 @@ def handle_manage_follows(follower_id, following_id):
         return response_body, 200
     
     if request.method == 'DELETE':
-        follows = db.session.execute(db.select(Followers).where(Followers.follower_id == follower_id)).scalar()
+        follows = db.session.execute(db.select(Followers).where(Followers.follower_id == follower_id, Followers.following_id == following_id)).scalar()
         db.session.delete(follows)
         db.session.commit()
         response_body['message'] = f"{follower_id} is now not following {following_id}"
