@@ -74,6 +74,10 @@ const getState = ({ getStore, getActions, setStore }) => {
 				return await getActions().APICall(`users/${user}`, await getActions().optionsMethod('GET'))
 			},
 
+			getUserId: async (id) => {
+				return await getActions().APICall(`users/id/${id}`, await getActions().optionsMethod('GET'))
+			},
+
 			editUser: async (user, data) => {
 				return await getActions().APICall(`users/${user}`, await getActions().optionsMethod('PUT', data))
 			},
