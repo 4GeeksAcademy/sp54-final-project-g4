@@ -30,7 +30,7 @@ export const Navigation = () => {
   }
 
   // const search = () => {
-    
+
   // }
 
   return (
@@ -46,8 +46,6 @@ export const Navigation = () => {
           />{' '}
           Star Trail
         </Navbar.Brand>
-        
-        <Navbar.Toggle />
         <Navbar.Collapse >
           <Nav
             className="me-auto my-2 my-lg-0"
@@ -56,19 +54,13 @@ export const Navigation = () => {
           >
             <Nav.Link href="/" >Home</Nav.Link>
             <Nav.Link href="/movies" >Movies</Nav.Link>
-            {/* <NavDropdown title="Menu" >
-            
-              <NavDropdown.Item href="movie">
-                Movies
-              </NavDropdown.Item>
-              <NavDropdown.Divider />
-              <NavDropdown.Item href="watchlist" disabled>
-                Watchlist
-              </NavDropdown.Item>
-            </NavDropdown> */}
           </Nav>
-
-          {/* <Form className="d-flex">
+          <Nav
+            className="ms-auto my-2 my-lg-0"
+            style={{ maxHeight: '100px' }}
+            navbarScroll
+          >
+            {/* <Form className="d-flex">
             <Form.Control
               type="search"
               placeholder="Search"
@@ -77,30 +69,15 @@ export const Navigation = () => {
             />
             <Button onClick={search} href="buscador" variant="outline-success me-2">Search</Button>
           </Form> */}
-
-          <Nav>
-          
-            {store.isLogin ?
-              <p onClick={() => handleProfile()} className="text-light mt-3">Profile</p>
-              :
-              <p onClick={() => actions.showModalSignin(true)} className="text-light mt-3">Login or</p>
-            }
+            <Nav.Link onClick={store.isLogin ? () => handleProfile() : () => actions.showModalSignin(true)} >{store.isLogin ? 'Profile' : 'Sign in'}</Nav.Link>
+            <Nav.Link onClick={store.isLogin ? () => handleSignout() : () => actions.showModalSignup(true)} >{store.isLogin ? 'Log out' : 'Sign up'}</Nav.Link>
           </Nav>
-
-          <Nav.Link href="#" className="text-light mx-1">
-            {store.isLogin ?
-              <p onClick={() => handleSignout()} className="p-0 mt-3">Logout</p>
-              :
-              <p onClick={() => actions.showModalSignup(true)} className="p-0 mt-3">Sign up</p>
-            }
-          </Nav.Link>
           {store.isLogin && <Notification />}
-          
+
         </Navbar.Collapse>
       </Container>
       <Login />
       <Signup />
-      
     </Navbar>
   );
 }

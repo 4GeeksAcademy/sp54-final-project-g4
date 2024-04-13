@@ -74,6 +74,7 @@ class Users(db.Model):
     def serialize_public(self):
         return {'id': self.id,
                 'username': self.username,
+                'email': self.email,
                 'referral_code': self.referral_code,
                 'referred_by': self.referred_by,
                 'role': self.role,

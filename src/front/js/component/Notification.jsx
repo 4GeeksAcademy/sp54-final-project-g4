@@ -44,14 +44,12 @@ export const Notification = () => {
 
     return (
         <Row>
-            <Col md={8} className=" mb-2">
-                <Button onClick={toggleShowA} className="d-flex mt-2">
-                    <i className="fas fa-bell me-1"></i> <Badge bg="secondary">{infoProfile.notifications.length}</Badge>
-                    <span className="visually-hidden">unread messages</span>
+            <Col md={8}>
+                <Button onClick={toggleShowA} className="d-flex bg-secondary">
+                    <i className="fas fa-bell me-1"></i> <Badge bg={infoProfile.notifications.length > 0 ? "danger" : "secondary"}>{infoProfile.notifications.length}</Badge>
                 </Button>
                 <ToastContainer position="top-end" className="p-3 mt-5" style={{ zIndex: 1 }}>
                     {infoProfile.notifications && infoProfile.notifications.map((noti, index)=>(
-
                         <Toast key={index} show={showA} onClose={() => deleteNoti(noti.id)}>
                             <Toast.Header>
                                 <img src="holder.js/20x20?text=%20" className="rounded me-2" alt="" />
