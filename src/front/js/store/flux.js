@@ -18,7 +18,6 @@ const getState = ({ getStore, getActions, setStore }) => {
 			// API Handler
 			APICall: async (url, options) => {
 				try {
-					console.log('Data in APICall: ', url, options)
 					const response = await fetch(getStore().baseURL + url, options);
 					if (!response.ok) {
 						console.error('Error: ' + response.status, response.statusText);
