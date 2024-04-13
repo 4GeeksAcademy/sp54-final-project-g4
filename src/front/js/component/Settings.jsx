@@ -1,14 +1,17 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Navigate, useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Context } from "../store/appContext";
 import { Modal, Button, Form } from "react-bootstrap";
 import { ModalPassword } from "./ModalPassword.jsx";
+import { ModalConfirmPassword } from './ModalConfirmPassword.jsx';
 
 export const Settings = ({ show = false, handleClose }) => {
 
     const { actions, store } = useContext(Context);
     const [showPasswordEdit, setShowPasswordEdit] = useState(false);
     const [privacy, setPrivacy] = useState(false);
+    const [isPasswordCorrect, setIsPasswordCorrect] = useState(false);
+    const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
     const [infoProfile, setInfoProfile] = useState({
         "credits": 0,
         "email": "",
@@ -25,6 +28,18 @@ export const Settings = ({ show = false, handleClose }) => {
     });
     const params = useParams();
     const navigate = useNavigate()
+
+    const handlePasswordConfirmation = (isCorrect) => {
+        setIsPasswordCorrect(isCorrect);
+    }
+
+    const handleOpenConfirm = () => {
+        setShowPasswordConfirm(true)
+    }
+
+    const handleCloseConfirm = () => {
+        setShowPasswordConfirm(false)
+    }
 
     const handleOpenPassword = () => {
         setShowPasswordEdit(true)
@@ -45,19 +60,20 @@ export const Settings = ({ show = false, handleClose }) => {
             "bio": infoProfile.bio,
 
         }
-        try {
-            const confirmUpdate = window.confirm("You will be logged out to update your user profile.")
-            if (confirmUpdate) {
-                const response = await actions.editUser(params.username, editProfile);
-                const privacyBool = privacy == true ? "private" : "public"
-                await actions.editSetting(infoProfile.id, "privacy", { "setting_value": privacyBool })
-                alert(response.message)
-                actions.signedOut()
-                navigate("/")
 
-            }
-        } catch (error) {
-            console.error('Error al actualizar el perfil')
+        if (!isPasswordCorrect) {
+            return handleOpenConfirm();
+        }
+
+        const confirmUpdate = window.confirm("You will be logged out to update your user profile.")
+        if (confirmUpdate) {
+            const response = await actions.editUser(params.username, editProfile);
+            const privacyBool = privacy == true ? "private" : "public"
+            await actions.editSetting(infoProfile.id, "privacy", { "setting_value": privacyBool })
+            alert(response.message)
+            actions.signedOut()
+            navigate("/")
+
         }
     }
 
@@ -160,6 +176,7 @@ export const Settings = ({ show = false, handleClose }) => {
                 </Modal.Footer>
             </Modal>
             <ModalPassword username={infoProfile.username} show={showPasswordEdit} handleClose={handleClosePassword} />
+            <ModalConfirmPassword show={showPasswordConfirm} handleClose={handleCloseConfirm} onPasswordConfirmed={handlePasswordConfirmation} />
         </>
     );
 };
