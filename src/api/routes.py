@@ -72,7 +72,7 @@ def handle_signup():
         defaultSetting = User_settings(user_id = user_info.id,
                                        setting_name = 'privacy',
                                        setting_value = 'public')
-        defaultPlaylist = Playlists(name = 'Recomendations',
+        defaultPlaylist = Playlists(name = 'Watchlist',
                                     user_id = user_info.id)
         db.session.add(defaultSetting)
         db.session.add(defaultPlaylist)
@@ -475,7 +475,7 @@ def handle_playlists_user_all(user_id):
         if not playlist:
             response_body['message'] = f"Playlist does not exist"
             return response_body, 404
-        if playlist.name == "Recomendations":
+        if playlist.name == "Watchlist":
             response_body['message'] = f"Cannot edit this playlist!"
             return response_body, 403
         required_data = ['name', 'new_name']
@@ -499,7 +499,7 @@ def handle_playlists_user_all(user_id):
         if not playlist:
             response_body['message'] = f"Playlist does not exist"
             return response_body, 404
-        if playlist.name == "Recomendations":
+        if playlist.name == "Watchlist":
             response_body['message'] = f"Cannot delete this playlist!"
             return response_body, 403
         db.session.delete(playlist)

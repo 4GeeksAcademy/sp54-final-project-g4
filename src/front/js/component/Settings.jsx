@@ -85,7 +85,6 @@ export const Settings = ({ show = false, handleClose }) => {
     const getProfile = async () => {
         const response = await actions.getUser(params.username)
         const privacySetting = response.results.settings.find(obj => obj.setting_name == 'privacy');
-        console.log(privacySetting)
         setInfoProfile(response.results)
         setPrivacy(privacySetting.setting_value == 'private' ? true : false)
     }

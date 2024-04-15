@@ -87,10 +87,14 @@ export const MovieDetails = () => {
                         ))}
                     </Col>
                 </Row>
+                <hr />
                 <ReviewModal movie_id={params.movieid} show={modalStatus} score={selected} onHide={closeForm} />
+                <Col md={4}>
+                    <h4>Reviews</h4>
+                </Col>
                 <Row className="ms-auto d-flex align-items-end justify-content-end">
                     <Col md={8}>
-                        <Review movie_id={params.movieid} />
+                        <Review movie_id={params.movieid} page='movieDetails' />
                     </Col>
                 </Row>
             </Container >
