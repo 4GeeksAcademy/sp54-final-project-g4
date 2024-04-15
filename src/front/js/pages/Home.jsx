@@ -4,6 +4,7 @@ import { Context } from "../store/appContext";
 import { useNavigate } from "react-router-dom";
 import { Spinner } from '../component/Spinner.jsx'
 
+
 export const Home = () => {
   const { actions, store } = useContext(Context)
   const [index, setIndex] = useState(0);
@@ -40,7 +41,7 @@ export const Home = () => {
 
   return (
     movieList.length < 1 ? <Spinner color='grey'/> :
-    <div className="bg-dark">
+    <div className="bg-secondary bg-gradient">
       <Carousel interval={10000} activeIndex={index} onSelect={handleSelect} className="container" style={{ maxWidth: '1500px', maxHeight: '450px' }}>
         {movieList.map((movie, index) => (
           <Carousel.Item key={index} >

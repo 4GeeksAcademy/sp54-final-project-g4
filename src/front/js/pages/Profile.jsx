@@ -87,55 +87,58 @@ export const Profile = () => {
 
     return (
         !infoProfile ? <Navigate to='/404' /> :
-            <div className="container-fluid mt-5 m-3">
-                <div className="row">
-                    <div className="col-2 d-flex flex-column align-items-center">
-                        <Image src={infoProfile.avatar_url} roundedCircle className="mb-3" style={{ 'maxWidth': '8rem', 'minWidth': '8rem' }} />
-                        <div className="card text-bg-secondary mt-3" style={{ 'width': '12rem' }}>
-                            {isSameUser ? (
-                                <Button variant="secondary" className={isSameUser ? "d-grid gap-2" : "d-grid gap-2 disabled"} onClick={handleOpenSettings}>Edit Profile</Button>
-                            ) : null}
-                            <div className="card-body bg-light mt-2 text-dark">
-                                {infoProfile.bio ?? 'Sin Biografia'}
-                            </div>
-                        </div>
-                    </div>
 
-                    <div className="col-9">
-                        <div className="row">
-                            <div className="col">
-                                <h1 className="text-start m-0">{params.username} {infoProfile.is_active == false ?
-                                    <span className="mx-2 text-danger fw-bold">Account deactivated</span>
-                                    : ""}</h1>
-                                {isSameUser || privacy == false ? (
-                                    <p className="fw-bold fs-6 text-warning">credits {infoProfile.credits} <i className="fa-solid fa-coins ms-1"></i></p>
+
+                <div className="container-fluid  profile-container ">
+                    <div className="row m-0 p-0">
+                        <div className="col-2 d-flex flex-column align-items-center profile-left py-5">
+                            <Image src={infoProfile.avatar_url} roundedCircle className="mb-3" style={{ 'maxWidth': '8rem', 'minWidth': '8rem' }} />
+                            <div className="card text-bg-secondary mt-3" style={{ 'width': '12rem' }}>
+                                {isSameUser ? (
+                                    <Button variant="secondary" className={isSameUser ? "d-grid gap-2" : "d-grid gap-2 disabled"} onClick={handleOpenSettings}>Edit Profile</Button>
                                 ) : null}
-                                <div className="d-flex justify-content-inline mt-5">
-                                    <h4 className="me-3">Followings {infoProfile.followers.length}</h4>
-                                    <h4>Followers {infoProfile.followings.length}</h4>
-                                </div>
-                            </div>
-
-                            <div className="col-1 d-flex justify-content-end">
-                                <div>
-                                    <Button
-                                        className={!isSameUser ? "" : "disabled"}
-                                        onClick={handleFollow}
-                                        variant={isFollowing ? "outline-danger me-3" : "outline-success me-3"}
-                                    >
-                                        {isFollowing ? "Unfollow" : "Follow"}
-                                    </Button>
+                                <div className="card-body bg-light mt-2 text-dark">
+                                    {infoProfile.bio ?? 'Sin Biografia'}
                                 </div>
                             </div>
                         </div>
-                        <Settings show={show} handleClose={handleCloseSettings} />
-                        <div className="row mt-4">
-                            <div className="col-6">
-                                <Review user={params.username} />
+
+                        <div className="col-10 profile-right py-5">
+                            <div className="row ">
+                                <div className="col">
+                                    <h1 className="text-start m-0">{params.username} {infoProfile.is_active == false ?
+                                        <span className="mx-2 text-danger fw-bold">Account deactivated</span>
+                                        : ""}</h1>
+                                    {isSameUser || privacy == false ? (
+                                        <p className="fw-bold fs-6 text-warning">credits {infoProfile.credits} <i className="fa-solid fa-coins ms-1"></i></p>
+                                    ) : null}
+                                    <div className="d-flex justify-content-inline mt-5">
+                                        <h4 className="me-3">Followings {infoProfile.followers.length}</h4>
+                                        <h4>Followers {infoProfile.followings.length}</h4>
+                                    </div>
+                                </div>
+
+                                <div className="col-1 d-flex justify-content-end pe-5">
+                                    <div className="pe-5">
+                                        <Button
+                                            className={!isSameUser ? "" : "disabled"}
+                                            onClick={handleFollow}
+                                            variant={isFollowing ? "outline-danger me-3" : "outline-success me-3"}
+                                        >
+                                            {isFollowing ? "Unfollow" : "Follow"}
+                                        </Button>
+                                    </div>
+                                </div>
+                            </div>
+                            <Settings show={show} handleClose={handleCloseSettings} />
+                            <div className="row mt-4">
+                                <div className="col-6">
+                                    <Review user={params.username} />
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
+
     )
 }

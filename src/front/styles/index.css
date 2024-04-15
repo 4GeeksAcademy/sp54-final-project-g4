@@ -1,3 +1,44 @@
 /* 
     General Styles used on every website (Don't Repeat Yourself)
 */
+/* .movies{
+    background-color: rgb(83, 83, 83);
+    width: 2000px;
+    background: linear-gradient(rgb(83, 83, 83), 10%, rgb(104, 103, 103));
+} */
+
+.movie-borders{
+    background: linear-gradient(to right, blue, lightpink, white, white, white, white, lightpink, blue);
+}
+
+.movie-center {
+    background: linear-gradient( to right , lightpink, beige, lightpink);
+}
+
+.card-shadow{
+
+    box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);
+}
+
+/* .profile{
+    background: linear-gradient(to right, blue, lightpink, white, white, white, white, lightpink, blue);
+} */
+.profile-left{
+    background: linear-gradient(to left, blue, lightpink, white);
+}
+.profile-right{
+    background: linear-gradient(to right, blue, lightpink, white);
+}
+.profile-container{
+    background-color: white;
+}
+
+.movie-details-center{
+    background-color: white;
+}
+.movie-details-left{
+    background: linear-gradient(to right, grey, beige, white);
+}
+.movie-details-right{
+    background: linear-gradient(to left, grey, beige, white);
+}

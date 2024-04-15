@@ -52,52 +52,55 @@ export const MovieDetails = () => {
         return <Navigate to='/404' />;
     } else {
         return (
-            <Container className="my-4">
-                <Row>
+            <div className="movie-borders py-5">
+
+                <Container className=" ">
+                    <Row className="border">
+                        <Col md={4} className="movie-details-left py-2">
+                            <Card style={{ width: '18rem' }} className="card-shadow">
+                                <Card.Img variant="top" src={movieDetails.cover_url ?? "https://placehold.co/400x600"} />
+                                <Card.Footer className="fs-2 text-center">
+                                    {[...Array(5)].map((star, i) => {
+                                        return (
+                                            <i
+                                                key={i}
+                                                className={`fa-star text-warning mx-1 ${i + 1 <= (hover || selected) ? "fas" : "far"}`}
+                                                onMouseEnter={() => setHover(i + 1)}
+                                                onMouseLeave={() => setHover(null)}
+                                                onClick={() => openForm(i)}
+                                            />
+                                        );
+                                    })}
+                                </Card.Footer>
+                            </Card>
+                        </Col>
+                        <Col md={5} className="movie-details-center py-2">
+                            <h2>{movieDetails.title}</h2>
+                            <p>Director: {movieDetails.director}</p>
+                            <p>Release date: {movieDetails.release_date}</p>
+                            <p>Genre: {movieDetails.genre}</p>
+                            <h3>Sinopsis</h3>
+                            <p>{movieDetails.sinopsis}</p>
+                            <iframe width="560" height="315" src={movieDetails.trailer_url} title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen></iframe>
+                        </Col>
+                        <Col md={3} className="movie-details-right py-2">
+                            {movieDetails.tags.length > 0 && movieDetails.tags.map((tag, index) => (
+                                <Button className="m-2 " disabled key={index}>{tag.tag_name}</Button>
+                            ))}
+                        </Col>
+                    </Row>
+                    <hr />
+                    <ReviewModal movie_id={params.movieid} show={modalStatus} score={selected} onHide={closeForm} />
                     <Col md={4}>
-                        <Card style={{ width: '18rem' }}>
-                            <Card.Img variant="top" src={movieDetails.cover_url ?? "https://placehold.co/400x600"} />
-                            <Card.Footer className="fs-2 text-center">
-                                {[...Array(5)].map((star, i) => {
-                                    return (
-                                        <i
-                                            key={i}
-                                            className={`fa-star text-warning mx-1 ${i + 1 <= (hover || selected) ? "fas" : "far"}`}
-                                            onMouseEnter={() => setHover(i + 1)}
-                                            onMouseLeave={() => setHover(null)}
-                                            onClick={() => openForm(i)}
-                                        />
-                                    );
-                                })}
-                            </Card.Footer>
-                        </Card>
+                        <h4>Reviews</h4>
                     </Col>
-                    <Col md={5}>
-                        <h2>{movieDetails.title}</h2>
-                        <p>Director: {movieDetails.director}</p>
-                        <p>Release date: {movieDetails.release_date}</p>
-                        <p>Genre: {movieDetails.genre}</p>
-                        <h3>Sinopsis</h3>
-                        <p>{movieDetails.sinopsis}</p>
-                        <iframe width="560" height="315" src={movieDetails.trailer_url} title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen></iframe>
-                    </Col>
-                    <Col md={3}>
-                        {movieDetails.tags.length > 0 && movieDetails.tags.map((tag, index) => (
-                            <Button className="m-2" key={index}>{tag.tag_name}</Button>
-                        ))}
-                    </Col>
-                </Row>
-                <hr />
-                <ReviewModal movie_id={params.movieid} show={modalStatus} score={selected} onHide={closeForm} />
-                <Col md={4}>
-                    <h4>Reviews</h4>
-                </Col>
-                <Row className="ms-auto d-flex align-items-end justify-content-end">
-                    <Col md={8}>
-                        <Review movie_id={params.movieid} page='movieDetails' />
-                    </Col>
-                </Row>
-            </Container >
+                    <Row className="ms-auto d-flex align-items-end justify-content-end">
+                        <Col md={8}>
+                            <Review movie_id={params.movieid} page='movieDetails' />
+                        </Col>
+                    </Row>
+                </Container >
+            </div>
         )
     }
 }
