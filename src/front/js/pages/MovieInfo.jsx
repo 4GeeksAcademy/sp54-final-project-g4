@@ -52,12 +52,12 @@ export const MovieDetails = () => {
         return <Navigate to='/404' />;
     } else {
         return (
-            <div className="movie-borders py-5">
+            <div className="bg-stars pt-5">
 
-                <Container className=" ">
-                    <Row className="border">
-                        <Col md={4} className="movie-details-left py-2">
-                            <Card style={{ width: '18rem' }} className="card-shadow">
+                <Container className="contenedor">
+                    <Row className="Linea">
+                        <Col md={4} className="bg-opacity py-2">
+                            <Card md={4} className="card-shadow">
                                 <Card.Img variant="top" src={movieDetails.cover_url ?? "https://placehold.co/400x600"} />
                                 <Card.Footer className="fs-2 text-center">
                                     {[...Array(5)].map((star, i) => {
@@ -74,14 +74,15 @@ export const MovieDetails = () => {
                                 </Card.Footer>
                             </Card>
                         </Col>
-                        <Col md={5} className="movie-details-center py-2">
+                        <Col md={5} className="txt-shadow bg-opacity py-2">
                             <h2>{movieDetails.title}</h2>
                             <p>Director: {movieDetails.director}</p>
                             <p>Release date: {movieDetails.release_date}</p>
                             <p>Genre: {movieDetails.genre}</p>
                             <h3>Sinopsis</h3>
                             <p>{movieDetails.sinopsis}</p>
-                            <iframe width="560" height="315" src={movieDetails.trailer_url} title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen></iframe>
+                            <iframe width="100%" height="315" src="https://www.youtube.com/embed/KkEAyuTIZTs" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
                         </Col>
                         <Col md={3} className="movie-details-right py-2">
                             {movieDetails.tags.length > 0 && movieDetails.tags.map((tag, index) => (
@@ -89,13 +90,17 @@ export const MovieDetails = () => {
                             ))}
                         </Col>
                     </Row>
-                    <hr />
+                    <Row>
+                        <Col md={9}>
+                            <hr />
+                        </Col>
+                    </Row>
                     <ReviewModal movie_id={params.movieid} show={modalStatus} score={selected} onHide={closeForm} />
                     <Col md={4}>
-                        <h4>Reviews</h4>
+                        <h4 className="txt-shadow">Reviews</h4>
                     </Col>
-                    <Row className="ms-auto d-flex align-items-end justify-content-end">
-                        <Col md={8}>
+                    <Row className="ms-auto d-flex align-items-start justify-content-start p-0">
+                        <Col md={9} className="p-0">
                             <Review movie_id={params.movieid} page='movieDetails' />
                         </Col>
                     </Row>

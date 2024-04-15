@@ -30,7 +30,7 @@ export const Movies = () => {
 
 
     return (
-        <div className="movie-borders">
+        <div className="bg-stars">
 
             <div className="container movie-center">
                 <div className="row d-flex align-item-strech ">

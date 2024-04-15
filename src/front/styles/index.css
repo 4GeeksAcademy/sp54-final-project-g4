@@ -7,38 +7,34 @@
     background: linear-gradient(rgb(83, 83, 83), 10%, rgb(104, 103, 103));
 } */
 
-.movie-borders{
-    background: linear-gradient(to right, blue, lightpink, white, white, white, white, lightpink, blue);
-}
-
-.movie-center {
-    background: linear-gradient( to right , lightpink, beige, lightpink);
-}
-
 .card-shadow{
-
     box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);
+} 
+
+
+hr {
+    border: solid 3px black;
+    box-shadow:  1px 1px 12px rgb(179, 227, 255);
+}
+ 
+
+.txt-shadow{
+    font-weight: bold;
+    color: rgb(8, 8, 8);
+    text-shadow:  1px 1px 12px rgb(179, 227, 255)
 }
 
-/* .profile{
-    background: linear-gradient(to right, blue, lightpink, white, white, white, white, lightpink, blue);
-} */
-.profile-left{
-    background: linear-gradient(to left, blue, lightpink, white);
-}
-.profile-right{
-    background: linear-gradient(to right, blue, lightpink, white);
-}
-.profile-container{
-    background-color: white;
+.bg-stars{
+    background: url('https://images.wallpaperscraft.com/image/single/stars_milky_way_starry_sky_119836_1920x1080.jpg');
+    background-repeat: no-repeat;
+    background-size: cover;
 }
 
-.movie-details-center{
-    background-color: white;
+.bg-opacity-rounded{
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
 }
-.movie-details-left{
-    background: linear-gradient(to right, grey, beige, white);
-}
-.movie-details-right{
-    background: linear-gradient(to left, grey, beige, white);
+
+.bg-opacity{
+    background-color: rgba(255, 255, 255, 0.2);
 }
