@@ -102,7 +102,7 @@ export const Review = ({ movie_id, user = null}) => {
                     </Card.Body>
                     <Card.Footer className="text-muted d-flex justify-content-between">
                         <p>{formatDate(notas.timestamp)}</p>
-                        {store.isLogin == true && (currentUser.username == notas.username) ? <i onClick={openForm} className="fas fa-pen"></i> : ''}
+                        // {store.isLogin == true && (currentUser.username == notas.username) ? <i onClick={openForm} className="fas fa-pen"></i> : ''}
                     </Card.Footer>
                   
                 </Card>
