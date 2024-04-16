@@ -110,7 +110,7 @@ export const Profile = () => {
                                         )}
                                     </h1>
                                     {(isSameUser || !privacy) && (
-                                        <p className="fw-bold fs-6 text-warning txt-shadow">
+                                        <p className="fw-bold fs-6 text-primary txt-shadow">
                                             credits {infoProfile.credits} <i className="fa-solid fa-coins ms-1"></i>
                                         </p>
                                     )}
