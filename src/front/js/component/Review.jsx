@@ -2,12 +2,15 @@ import React, { useState, useContext, useEffect } from 'react';
 import { Context } from '../store/appContext.js'
 import Card from 'react-bootstrap/Card';
 import { Link } from 'react-router-dom';
+import { ReviewModal } from './ReviewModal.jsx';
 
 export const Review = ({ movie_id, user = null}) => {
 
     const { store, actions } = useContext(Context)
     const [usernames, setUsernames] = useState({})
     const [review, setReview] = useState([])
+    const [currentUser, setCurrentUser] = useState()
+    const [modalStatus, setModalStatus] = useState(null);
 
     const getMovieInfo = async (id) => {
         const response = await actions.getMovie(id)
@@ -42,14 +45,33 @@ export const Review = ({ movie_id, user = null}) => {
         return formattedDate;
     };
 
+    const getUser = async () =>{
+        const currentUser = await actions.getUserLoggedIn()
+        setCurrentUser(currentUser.results) 
+    }
 
+    useEffect(() => {
+        getUser()
+    }, [])
+
+    
+    const openForm = () => {
+        console.log(1)
+        setModalStatus(true)
+       
+    }
+
+    const closeForm = () => {
+        setModalStatus(false)
+    }
 
     return (
+
         user ?
-         <div> <h4>Reviews publicadas por {user}</h4>
+         <div> <h4 className='txt-shadow'>Reviews publicadas por {user}</h4>
              {review.length < 1 ? <h4>El usuario aun no tiene ninguna review publicada</h4> : review.map((notas, index) => (
                  <Card key={index} className="my-4">
-                     <Card.Header className="d-flex justify-content-between">
+                     <Card.Header className="d-flex justify-content-between text-shadow">
                      <p><b><Link to={"/movie/" + notas.movie_id}>{notas.movie_name}</Link></b> <i className="fas fa-star" style={{ "color": "#FFD43B" }}></i>{notas.rating}</p>
                          {/* <i className="fas fa-times text-secondary"></i> */}
                      </Card.Header>
@@ -60,12 +82,16 @@ export const Review = ({ movie_id, user = null}) => {
                      </Card.Body>
                      <Card.Footer className="text-muted d-flex justify-content-between">
                          <p>{formatDate(notas.timestamp)}</p>
-                         {/* <i className="fas fa-comments"></i> */}
+                         {/* {currentUser.username == user ? <i onClick={openForm} className="fas fa-pen"></i> : ''}                         */}
                      </Card.Footer>
                  </Card>
+                     
              ))}
          </div>
+         {/* <ReviewModal movie_id={movie_id} show={modalStatus} onHide={closeForm} edit={1}/> */}
+        </>
          :
+         <>
          <div>
              {review.map((notas, index) => (
                  <Card key={index} className="my-4">
@@ -80,10 +106,13 @@ export const Review = ({ movie_id, user = null}) => {
                     </Card.Body>
                     <Card.Footer className="text-muted d-flex justify-content-between">
                         <p>{formatDate(notas.timestamp)}</p>
-                        {/* <i className="fas fa-comments"></i> */}
+                        {currentUser.username == notas.username ? <i onClick={openForm} className="fas fa-pen"></i> : ''}
                     </Card.Footer>
+                  
                 </Card>
             ))}
         </div>
+        <ReviewModal movie_id={movie_id} show={modalStatus} onHide={closeForm} edit={1}/>
+    </>
     )
 }

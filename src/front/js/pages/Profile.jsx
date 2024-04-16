@@ -2,8 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { Settings } from "../component/Settings.jsx";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { Context } from "../store/appContext";
-import { Image, Button } from 'react-bootstrap'
-
+import { Container, Row, Col, Button, Image } from 'react-bootstrap';
 import { MD5 } from 'crypto-js';
 import { Review } from "../component/Review.jsx";
 
@@ -83,55 +82,63 @@ export const Profile = () => {
     }, [isFollowing, params.username])
 
     return (
-            <div className="container-fluid mt-5 m-3">
-                <div className="row">
-                    <div className="col-2 d-flex flex-column align-items-center">
-                        <Image src={infoProfile.avatar_url} roundedCircle className="mb-3" style={{ 'maxWidth': '8rem', 'minWidth': '8rem' }} />
-                        <div className="card text-bg-secondary mt-3" style={{ 'width': '12rem' }}>
-                            {isSameUser ? (
-                                <Button variant="secondary" className={isSameUser ? "d-grid gap-2" : "d-grid gap-2 disabled"} onClick={handleOpenSettings}>Edit Profile</Button>
-                            ) : null}
+        !infoProfile ? <Navigate to='/404' /> :
+            <Container fluid className="bg-stars">
+                <Row className="m-0">
+                    {/* Perfil Izquierdo */}
+                    <Col md={3} className="d-flex flex-column align-items-center profile-left py-5">
+                        <Image src={infoProfile.avatar_url} roundedCircle className="mb-3" style={{width: "50%"}} />
+                        <div className="card text-bg-secondary mt-3" >
+                            {isSameUser && (
+                                <Button variant="secondary" className="d-grid gap-2" onClick={handleOpenSettings}>
+                                    Edit Profile
+                                </Button>
+                            )}
                             <div className="card-body bg-light mt-2 text-dark">
                                 {infoProfile.bio ?? 'Sin Biografia'}
                             </div>
                         </div>
-                    </div>
+                    </Col>
 
-                    <div className="col-9">
-                        <div className="row">
-                            <div className="col">
-                                <h1 className="text-start m-0">{params.username} {infoProfile.is_active == false ?
-                                    <span className="mx-2 text-danger fw-bold">Account deactivated</span>
-                                    : ""}</h1>
-                                {isSameUser || privacy == false ? (
-                                    <p className="fw-bold fs-6 text-warning">credits {infoProfile.credits} <i className="fa-solid fa-coins ms-1"></i></p>
-                                ) : null}
-                                <div className="d-flex justify-content-inline mt-5">
-                                    <h4 className="me-3">Followings {infoProfile.followers.length}</h4>
-                                    <h4>Followers {infoProfile.followings.length}</h4>
-                                </div>
-                            </div>
+                    {/* Perfil Derecho */}
+                    <Col md={9} className="profile-right py-5">
+                        <Row>
+                                <Col md={10} className="bg-opacity-rounded">
+                                    <h1 className="text-start m-0 txt-shadow">
+                                        {params.username} {infoProfile.is_active === false && (
+                                            <span className="mx-2 text-danger fw-bold">Account deactivated</span>
+                                        )}
+                                    </h1>
+                                    {(isSameUser || !privacy) && (
+                                        <p className="fw-bold fs-6 text-warning txt-shadow">
+                                            credits {infoProfile.credits} <i className="fa-solid fa-coins ms-1"></i>
+                                        </p>
+                                    )}
+                                    <div className="d-flex justify-content-inline my-5">
+                                        <h4 className="me-3 txt-shadow">Followings {infoProfile.followers.length}</h4>
+                                        <h4 className="txt-shadow">Followers {infoProfile.followings.length}</h4>
+                                    </div>
+                                    <div className="mt-4">
+                                        <Review user={params.username} />
+                                    </div>
+                                </Col>
+                                <Col md={2} className="d-flex justify-content-end pe-5">
+                                    <div>
+                                        <Button
+                                            className={!isSameUser ? "" : "disabled"}
+                                            onClick={handleFollow}
+                                            variant={isFollowing ? "danger me-3" : "success me-3"}
+                                        >
+                                            {isFollowing ? "Unfollow" : "Follow"}
+                                        </Button>
+                                    </div>
+                                </Col>
+                        </Row>
 
-                            <div className="col-1 d-flex justify-content-end">
-                                <div>
-                                    <Button
-                                        className={!isSameUser ? "" : "disabled"}
-                                        onClick={handleFollow}
-                                        variant={isFollowing ? "outline-danger me-3" : "outline-success me-3"}
-                                    >
-                                        {isFollowing ? "Unfollow" : "Follow"}
-                                    </Button>
-                                </div>
-                            </div>
-                        </div>
+                        {/* Botón de Seguir/Dejar de Seguir */}
                         <Settings show={show} handleClose={handleCloseSettings} />
-                        <div className="row mt-4">
-                            <div className="col-6">
-                                <Review user={params.username} />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-    )
+                    </Col>
+                </Row>
+            </Container>
+    );
 }
