@@ -41,7 +41,7 @@ export const Home = () => {
 
   return (
     movieList.length < 1 ? <Spinner color='grey'/> :
-    <div className="bg-secondary bg-gradient">
+    <div className="bg-stars py-5">
       <Carousel interval={10000} activeIndex={index} onSelect={handleSelect} className="container" style={{ maxWidth: '1500px', maxHeight: '450px' }}>
         {movieList.map((movie, index) => (
           <Carousel.Item key={index} >

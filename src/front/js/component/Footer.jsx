@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from 'react-router-dom';
 
 
 export const Footer = () => (
@@ -36,21 +37,19 @@ export const Footer = () => (
 
             <div className="d-flex flex-column">
 
-              <a href='' className='text-reset mb-2'>
+              <Link to="/" className="text-light">
+                Home
+              </Link>
+
+              <a href='https://github.com/4GeeksAcademy/sp54-final-project-g4/blob/main/docs/API_Documentation.md' target="_blank" className='text-reset mb-2'>
                 <span className="ms-1 text-light">
-                  Place-Holder
+                  Documentation
                 </span>
               </a>
 
-              <a href='' className='text-reset mb-2'>
+              <a href='https://4geeks.com/es' target="_blank" className='text-reset'>
                 <span className="ms-1 text-light">
-                  Place-Holder
-                </span>
-              </a>
-
-              <a href='' className='text-reset'>
-                <span className="ms-1 text-light">
-                  Place-Holder
+                  4GeeksAcademy
                 </span>
               </a>
 
