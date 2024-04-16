@@ -13,21 +13,21 @@ export const ReviewModal = (props) => {
         setSelected(props.score);
     }, [props.score]);
 
-    useEffect(() => {
-        if (props.edit && props.edit == 1) {
-            getReviewData();
-        };
-    }, []);
+    // useEffect(() => {
+    //     if (props.edit && props.edit == 1) {
+    //         getReviewData();
+    //     };
+    // }, []);
 
-    const getReviewData = async () =>{
-        if (localStorage.access_token) {
-            const userInfo = await actions.getUserLoggedIn();
-            const response = await actions.getUser(userInfo.results.username)
-            const rvw = response.results.reviews.find(obj => obj.movie_id == props.movie_id)
-            setReviewText(rvw.review_text)
-            setSelected(rvw.rating)
-        }
-    }
+    // const getReviewData = async () =>{
+    //     if (localStorage.access_token) {
+    //         const userInfo = await actions.getUserLoggedIn();
+    //         const response = await actions.getUser(userInfo.results.username)
+    //         const rvw = response.results.reviews.find(obj => obj.movie_id == props.movie_id)
+    //         setReviewText(rvw.review_text)
+    //         setSelected(rvw.rating)
+    //     }
+    // }
 
     const handleOnSubmit = async (e) => {
         e.preventDefault();
