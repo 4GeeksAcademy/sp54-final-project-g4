@@ -4,23 +4,6 @@ import { Link } from 'react-router-dom';
 
 export const Footer = () => (
   <footer className="footer d-flex flex-column py-3 text-center bg-dark bg-gradient min-vh-50">
-    {/* <section className="d-flex justify-content-center justify-content-lg-between p-4 border-bottom">
-      <div className="me-5 d-none d-lg-block">
-        <span>Get connect with us!</span>
-      </div>
-
-      <div>
-        <a href='' className='me-4 text-reset'>
-          
-        </a>
-        <a href='' className='me-4 text-reset'>
-          
-        </a>
-        <a href='' className='me-4 text-reset'>
-          
-        </a>
-      </div>
-    </section> */}
 
     <section>
       <div className="container text-center mt-5">

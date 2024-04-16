@@ -20,21 +20,26 @@ hr {
 
 .txt-shadow{
     font-weight: bold;
-    color: rgb(8, 8, 8);
+    color: rgb(54, 54, 54);
     text-shadow:  1px 1px 12px rgb(179, 227, 255)
 }
 
 .bg-stars{
     background: url('https://images.wallpaperscraft.com/image/single/stars_milky_way_starry_sky_119836_1920x1080.jpg');
     background-repeat: no-repeat;
-    background-size: cover;
+    background-size:cover;
 }
 
 .bg-opacity-rounded{
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: rgba(255, 255, 255, 0.7);
     border-radius: 10px;
 }
 
 .bg-opacity{
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: rgba(255, 255, 255, 0.7);
+}
+
+.extra-card {
+    transform: scale(1.1); 
+    transition: transform 0.3s ease; 
 }
