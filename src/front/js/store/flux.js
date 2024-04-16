@@ -199,6 +199,10 @@ const getState = ({ getStore, getActions, setStore }) => {
 				return response
 			},
 
+			resetPassword: async (data) => {
+				return await getActions().APICall(`reset/`, await getActions().optionsMethod('POST', data))
+			},
+
 			// Functions for the website
 			checkTokenExpiration: (token) => {
 				const decodedToken = jwtDecode(token);

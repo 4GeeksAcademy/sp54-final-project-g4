@@ -41,11 +41,9 @@ export const Footer = () => (
                 Home
               </Link>
 
-              <a href='https://github.com/4GeeksAcademy/sp54-final-project-g4/blob/main/docs/API_Documentation.md' target="_blank" className='text-reset mb-2'>
-                <span className="ms-1 text-light">
-                  Documentation
-                </span>
-              </a>
+              <Link to="/terms-and-conditions" className="text-light">
+                Terms and conditions - License
+              </Link>
 
               <a href='https://4geeks.com/es' target="_blank" className='text-reset'>
                 <span className="ms-1 text-light">

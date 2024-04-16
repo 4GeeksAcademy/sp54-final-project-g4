@@ -2,25 +2,22 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 import os
-
 from datetime import timedelta
-
 from flask import Flask, request, jsonify, url_for, send_from_directory
 from flask_migrate import Migrate
 from flask_swagger import swagger
-
 from api.utils import APIException, generate_sitemap
 from api.routes import api
 from api.admin import setup_admin
 from api.commands import setup_commands
 from api.models import db
-
 from flask_jwt_extended import JWTManager
-
+from flask_mail import Mail, Message
+from itsdangerous import URLSafeTimedSerializer
 
 ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
 static_file_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../public/')
-app = Flask(__name__)
+app = Flask(__name__, template_folder='api/templates')
 app.url_map.strict_slashes = False
 # Database condiguration
 db_url = os.getenv("DATABASE_URL")
@@ -38,9 +35,21 @@ setup_commands(app)  # Add the admin
 app.register_blueprint(api, url_prefix='/api')
 
 # Setup the Flask-JWT-Extended extension
-app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SEED")
+app.config["JWT_SECRET_KEY"] = os.getenv('JWT_SECRET_KEY')
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=24)
 jwt = JWTManager(app)
+
+# Setup mail
+app.config['MAIL_SERVER']= os.getenv('MAIL_SERVER')
+app.config['MAIL_PORT'] = os.getenv('MAIL_PORT')
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USE_SSL'] = False
+app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER')
+mail = Mail(app)
+safeTime = URLSafeTimedSerializer(os.getenv('JWT_SECRET_KEY'))
+
 
 
 # Handle/serialize errors like a JSON object

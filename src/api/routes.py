@@ -4,10 +4,13 @@ This module takes care of starting the API Server, Loading the DB and Adding the
 import random
 import string
 import bcrypt
+from flask import Flask, request, jsonify, url_for, Blueprint, current_app as app
+from flask import render_template
 
-from flask import Flask, request, jsonify, url_for, Blueprint
 from flask_cors import CORS
 from flask_jwt_extended import (get_jwt, jwt_required, create_access_token, get_jwt_identity)
+from itsdangerous import URLSafeTimedSerializer
+from flask_mail import Mail, Message
 
 from api.models import db, Users, Movies, Tags, Reviews, Playlists, Notifications, Followers, User_settings, Reports, Recommendations
 from api.utils import generate_sitemap, APIException
@@ -16,7 +19,6 @@ from api.utils import generate_sitemap, APIException
 api = Blueprint('api', __name__)
 CORS(api)  # Allow CORS requests to this API
 
-
 # Auxiliar functions
 def encrypt_password(password):
         password = password.encode('utf-8')
@@ -24,7 +26,6 @@ def encrypt_password(password):
         password = bcrypt.hashpw(password, salt)
         password = password.decode('utf-8')
         return password
-
 
 def user_referral_code():
     characters = string.ascii_letters + string.digits
@@ -35,11 +36,21 @@ def user_referral_code():
             return new_code
 
 
+def send_email(to, subject, template):
+    msg = Message(
+        subject,
+        recipients=[to],
+        html=template,
+        sender=app.config['MAIL_DEFAULT_SENDER']
+    )
+    app.extensions['mail'].send(msg)
+
+
+
 def check_rating(rating):
     return max(0.0, min(rating, 5.0))
 
 
-# API Endpoints
 @api.route('/signup', methods=['POST']) 
 def handle_signup():
     response_body = {}
@@ -64,7 +75,7 @@ def handle_signup():
                      credits = 0,
                      role = 'user',
                      referral_code = referral_code,
-                     is_active = True,
+                     is_active = False,  # El usuario está inactivo hasta que confirme su correo electrónico
                      referred_by = reffered_by)
         db.session.add(user)
         db.session.commit()
@@ -77,7 +88,16 @@ def handle_signup():
         db.session.add(defaultSetting)
         db.session.add(defaultPlaylist)
         db.session.commit()
-        response_body['message'] = f"User {data.get('username')} added."
+
+        # Enviar correo electrónico de confirmación
+        safeTime = URLSafeTimedSerializer(app.config['JWT_SECRET_KEY'])
+        token = safeTime.dumps(user.email, salt='email-confirm')
+        confirm_url = url_for('confirm_email', token=token, _external=True)
+        html = render_template('confirm_email.html', confirm_url=confirm_url)
+        subject = "Star trail - Confirm email"
+        send_email(user.email, subject, html)
+
+        response_body['message'] = f"User {data.get('username')} added. Please confirm your email."
         return response_body, 200
     response_body['message'] = "Method not allowed."
     return response_body, 405
@@ -782,3 +802,36 @@ def handle_create_report(id):
         return response_body, 200
     response_body['message'] = "Method not allowed."
     return response_body, 405
+
+# Endpoints para manejor del reset email:
+@api.route('/reset', methods=['POST'])
+def reset():
+    email = request.json.get('email')
+    user = Users.query.filter_by(email=email).first()
+    if not user:
+        return jsonify(message='Correo electrónico no registrado.'), 400
+    safeTime = URLSafeTimedSerializer(app.config['JWT_SECRET_KEY'])
+    token = safeTime.dumps(user.email, salt='password-reset')
+    reset_url = url_for('api.reset_with_token', token=token, _external=True)
+    html = render_template('reset_password.html', reset_url=reset_url)
+    subject = "Restablece tu contraseña"
+    send_email(user.email, subject, html)
+
+    return jsonify(message='Se ha enviado un correo electrónico con instrucciones para restablecer tu contraseña.'), 200
+
+
+@api.route('/reset/<token>', methods=['POST'])
+def reset_with_token(token):
+    try:
+        safeTime = URLSafeTimedSerializer(app.config['JWT_SECRET_KEY'])
+        email = safeTime.loads(token, salt='password-reset', max_age=3600)
+    except:
+        return jsonify(message='El enlace de restablecimiento es inválido o ha expirado.'), 400
+
+    user = Users.query.filter_by(email=email).first()
+    new_password = request.json.get('new_password')
+    user.password = encrypt_password(new_password)
+    db.session.add(user)
+    db.session.commit()
+
+    return jsonify(message='Tu contraseña ha sido actualizada.'), 200

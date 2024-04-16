@@ -81,7 +81,7 @@ export const MovieDetails = () => {
                             <p>Genre: {movieDetails.genre}</p>
                             <h3>Sinopsis</h3>
                             <p>{movieDetails.sinopsis}</p>
-                            <iframe width="100%" height="315" src="https://www.youtube.com/embed/KkEAyuTIZTs" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                            <iframe width="100%" height="315" src="https://www.youtube.com/embed/KkEAyuTIZTs" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
 
                         </Col>
                         <Col md={3} className="movie-details-right py-2">

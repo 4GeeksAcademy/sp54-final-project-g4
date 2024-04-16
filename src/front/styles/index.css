@@ -7,6 +7,38 @@
     background: linear-gradient(rgb(83, 83, 83), 10%, rgb(104, 103, 103));
 } */
 
+.avatar-container {
+    position: relative;
+    display: inline-block;
+}
+
+.avatar-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    opacity: 0;
+    transition: .5s ease;
+    background-color: rgba(255,255,255,0.5);
+    border-radius: 50%; /* Asegúrate de que este valor coincida con el de tu avatar */
+}
+
+.avatar-container:hover .avatar-overlay {
+    opacity: 1;
+}
+
+.avatar-overlay i {
+    color: black;
+    font-size: 20px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    text-align: center;
+}
+
 .card-shadow{
     box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);
 } 

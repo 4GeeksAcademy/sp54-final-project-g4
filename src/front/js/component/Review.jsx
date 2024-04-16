@@ -82,14 +82,10 @@ export const Review = ({ movie_id, user = null}) => {
                      </Card.Body>
                      <Card.Footer className="text-muted d-flex justify-content-between">
                          <p>{formatDate(notas.timestamp)}</p>
-                         {/* {currentUser.username == user ? <i onClick={openForm} className="fas fa-pen"></i> : ''}                         */}
                      </Card.Footer>
                  </Card>
-                     
              ))}
          </div>
-         {/* <ReviewModal movie_id={movie_id} show={modalStatus} onHide={closeForm} edit={1}/> */}
-        </>
          :
          <>
          <div>
@@ -106,7 +102,7 @@ export const Review = ({ movie_id, user = null}) => {
                     </Card.Body>
                     <Card.Footer className="text-muted d-flex justify-content-between">
                         <p>{formatDate(notas.timestamp)}</p>
-                        {currentUser.username == notas.username ? <i onClick={openForm} className="fas fa-pen"></i> : ''}
+                        {store.isLogin == true && (currentUser.username == notas.username) ? <i onClick={openForm} className="fas fa-pen"></i> : ''}
                     </Card.Footer>
                   
                 </Card>

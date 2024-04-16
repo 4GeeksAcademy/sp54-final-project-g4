@@ -20,11 +20,13 @@ export const ReviewModal = (props) => {
     }, []);
 
     const getReviewData = async () =>{
-        const userInfo = await actions.getUserLoggedIn();
-        const response = await actions.getUser(userInfo.results.username)
-        const rvw = response.results.reviews.find(obj => obj.movie_id == props.movie_id)
-        setReviewText(rvw.review_text)
-        setSelected(rvw.rating)
+        if (localStorage.access_token) {
+            const userInfo = await actions.getUserLoggedIn();
+            const response = await actions.getUser(userInfo.results.username)
+            const rvw = response.results.reviews.find(obj => obj.movie_id == props.movie_id)
+            setReviewText(rvw.review_text)
+            setSelected(rvw.rating)
+        }
     }
 
     const handleOnSubmit = async (e) => {
