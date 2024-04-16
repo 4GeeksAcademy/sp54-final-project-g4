@@ -33,7 +33,7 @@ export const ModalConfirmPassword = ({ show = false, handleClose, onPasswordConf
             </Modal.Body>
             <Modal.Footer>
                 <button type="button" className="btn btn-secondary" onClick={() => {onPasswordConfirmed(false), setCurrentPassword(''), handleClose()}}>Cancel</button>
-                <button type="button" className="btn btn-primary" onClick={handleCheckPassword}>Confirm Password</button>
+                <button type="button" className="btn btn-primary" onClick={(e) => handleCheckPassword(e)}>Confirm Password</button>
             </Modal.Footer>
         </Modal>
     )

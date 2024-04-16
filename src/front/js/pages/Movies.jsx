@@ -19,7 +19,6 @@ export const Movies = () => {
     const getMovieList = async () => {
         const response = await actions.getMovies()
         setMovieList(response.results)
-        console.log(response)
     }
 
     useEffect(() => {         

@@ -21,7 +21,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 					const response = await fetch(getStore().baseURL + url, options);
 					if (!response.ok) {
 						console.error('Error: ' + response.status, response.statusText);
-						return response.status;
+						return response;
 					}
 					return await response.json();
 				} catch (error) {

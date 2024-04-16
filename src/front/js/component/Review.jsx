@@ -25,7 +25,6 @@ export const Review = ({ movie_id, user = null}) => {
             const movie = await actions.getMovie(review.movie_id)
             return { ...review, movie_name: movie.results.title }
         }))
-        console.log(reviewsWithMovies)
         setReview(reviewsWithMovies)
     }
 

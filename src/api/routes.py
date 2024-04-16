@@ -167,7 +167,7 @@ def handle_users_info(username):
     user = db.session.execute(db.select(Users).filter(Users.username.ilike(username))).scalar()
     if not user:
         response_body['message'] = f"{username} not found."
-        return response_body, 200
+        return response_body, 404
 
     if request.method == 'GET':
         response_body['results'] = user.serialize() if current_user and (current_user['username'] == user.username or current_user['role'] == 'admin') else user.serialize_public()

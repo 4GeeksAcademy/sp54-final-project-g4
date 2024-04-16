@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Settings } from "../component/Settings.jsx";
-import { Navigate, useParams } from "react-router-dom";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { Context } from "../store/appContext";
 import { Image, Button } from 'react-bootstrap'
 
@@ -30,13 +30,9 @@ export const Profile = () => {
 
     // Declaraciones
     const params = useParams(); // esto es igual a : es lo que va dentro de Params 
+    const navigate = useNavigate()
 
     // Funciones
-    const gravatar = () => {
-
-    }
-
-
     const handleOpenSettings = () => {
         setShow(true)
     }
@@ -47,6 +43,7 @@ export const Profile = () => {
 
     const getProfile = async () => {
         const response = await actions.getUser(params.username)
+        if (response.status == 404) navigate('/404')
         const privacySetting = response.results.settings.find(obj => obj.setting_name == 'privacy');
         response.results.email = MD5(response.results.email.toLowerCase()).toString();
         response.results.avatar_url = "https://www.gravatar.com/avatar/" + response.results.email;
@@ -86,7 +83,6 @@ export const Profile = () => {
     }, [isFollowing, params.username])
 
     return (
-        !infoProfile ? <Navigate to='/404' /> :
             <div className="container-fluid mt-5 m-3">
                 <div className="row">
                     <div className="col-2 d-flex flex-column align-items-center">
