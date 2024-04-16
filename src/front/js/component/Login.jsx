@@ -1,6 +1,7 @@
 import React, { useState, useContext } from "react";
 import { Context } from "../store/appContext";
 import { Button, Form, Modal } from 'react-bootstrap';
+import { ModalForgotPassword } from "./ModalForgotPassword.jsx";
 
 // https://www.aunitz.net/tip-18-botones-aceptar-cancelar-orden/
 export const Login = ({ show = false }) => {
@@ -10,6 +11,7 @@ export const Login = ({ show = false }) => {
         username_email: '',
         password: '',
     });
+    const [forgotShow, setForgotShow] = useState(false)
 
     const handleInputChange = (event) => {
         setFormData({ ...formData, [event.target.name]: event.target.value })
@@ -43,6 +45,15 @@ export const Login = ({ show = false }) => {
         actions.showModalSignin(false)
     }
 
+    const forgotClose = () => {
+        setForgotShow(false)
+    }
+
+    const forgotOpen = (e) => {
+        e.preventDefault()
+        setForgotShow(true)
+    }
+
     return (
         <Modal show={store.showModalSignin}>
             <Form onSubmit={handleSubmit} className="m-3">
@@ -54,6 +65,9 @@ export const Login = ({ show = false }) => {
                 <Form.Group className="my-3" controlId="formBasicPassword">
                     <Form.Label>Password</Form.Label>
                     <Form.Control type="password" placeholder="Password" name='password' value={formData.password} onChange={(e) => handleInputChange(e)} required />
+                    {/* <div className="form-text">
+                        <a href="#" onClick={(e) => forgotOpen(e)}>Forgot password</a>
+                    </div> */}
                 </Form.Group>
 
                 <Form.Group className="text-center mt-5">
@@ -66,6 +80,7 @@ export const Login = ({ show = false }) => {
                     </Button>
                 </Form.Group>
             </Form>
+            <ModalForgotPassword show={forgotShow} handleClose={forgotClose} />
         </Modal>
     )
 }

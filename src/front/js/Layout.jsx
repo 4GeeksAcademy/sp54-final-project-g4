@@ -6,6 +6,7 @@ import ScrollToTop from "./component/scrollToTop.js";
 import { BackendURL } from "./component/BackendURL.jsx";
 import { Navigation } from "./component/Navigation.jsx";
 import { Footer } from "./component/Footer.jsx";
+
 // Import custom pages
 import { Home } from "./pages/Home.jsx";
 import { Demo } from "./pages/Demo.jsx";
@@ -14,6 +15,7 @@ import { Single } from "./pages/Single.jsx";
 import { Profile } from "./pages/Profile.jsx";
 import { MovieDetails } from "./pages/MovieInfo.jsx";
 import { Movies } from "./pages/Movies.jsx";
+import { TermsAndConditions } from "./pages/License.jsx"
 
 // Create your first component
 const Layout = () => {
@@ -23,7 +25,7 @@ const Layout = () => {
     if (!process.env.BACKEND_URL || process.env.BACKEND_URL == "") return <BackendURL />;
 
     return (
-        <div>
+        <div className="min-vh-100 d-flex flex-column">
             <BrowserRouter basename={basename}>
                 <ScrollToTop>
                     <Navigation />
@@ -34,6 +36,7 @@ const Layout = () => {
                         <Route element={<MovieDetails />} path="/movie/:movieid" />
                         <Route element={<Profile />} path="/profile/:username" />
                         <Route element={<Movies />} path="/movies" />
+                        <Route element={<TermsAndConditions />} path="/terms-and-conditions" />
                         <Route element={<Error404 />} path="*" />
                     </Routes>
                     <Footer className="mt-auto"/>

@@ -2,6 +2,8 @@ import React, { useContext, useEffect, useState } from "react";
 import { Carousel } from 'react-bootstrap';
 import { Context } from "../store/appContext";
 import { useNavigate } from "react-router-dom";
+import { Spinner } from '../component/Spinner.jsx'
+
 
 export const Home = () => {
   const { actions, store } = useContext(Context)
@@ -22,8 +24,9 @@ export const Home = () => {
     const response = await actions.getMovies()
     const movies = response.results.slice(-8)
     setMovieList(movies)
-    setMiniMovieList1(movies.slice( 0, 4 ))
-    setMiniMovieList2(movies.slice( 4, 8 ))
+    movies.length > 0 && setMiniMovieList1(movies.slice(0, 4))
+    movies.length > 4 && setMiniMovieList2(movies.slice(4, 8))
+
   }
 
   const handleSelect2 = (selectedIndex) => {
@@ -31,45 +34,41 @@ export const Home = () => {
     setIndex(Math.floor(selectedIndex * 4))
   };
 
-  const handleClick = (selectedIndex) => {
-    // Logica
-  };
-
   useEffect(() => {
     getMovies()
   }, [])
 
   return (
-    <div className="bg-dark">
-      <Carousel interval={10000} activeIndex={index} onSelect={handleSelect} className="container" style={{ maxWidth: '1500px', maxHeight:'450px' }}>
+    movieList.length < 1 ? <Spinner color='grey'/> :
+    <div className="bg-stars py-5">
+      <Carousel key="2" interval={10000} activeIndex={index} onSelect={handleSelect} className="container" style={{ maxWidth: '1500px', maxHeight: '450px' }}>
         {movieList.map((movie, index) => (
           <Carousel.Item key={index} >
-            <img src={movie.cover_url ?? 'https://placehold.co/800x300'} style={{ height: "450px" }} onClick={() => navigate('/movie/'+movie.id)} className='d-block w-100' />
+            <img src={movie.cover_url ?? 'https://placehold.co/800x300'} style={{ height: "450px" }} onClick={() => navigate('/movie/' + movie.id)} className='d-block w-100' />
             <Carousel.Caption className="text-dark">
               <h3>{movie.title}</h3>
             </Carousel.Caption>
           </Carousel.Item>
         ))}
       </Carousel>
-
-
-      <Carousel interval={null} activeIndex={indexSecondary} onSelect={handleSelect2} className="container" style={{ maxWidth: '1500px' }}>
-        <Carousel.Item>
+      
+      <Carousel key="1" interval={null} activeIndex={indexSecondary} onSelect={handleSelect2} className="container" style={{ maxWidth: '1500px' }}>
+        {miniMovieList1.length > 0 &&
+          <Carousel.Item>
+            <div className="d-flex justify-content-center">
+              {miniMovieList1.map((movie, index) => (
+                <span key={index}><img src={movie.cover_url ?? 'https://placehold.co/800x300'} className="m-3" onClick={() => handleSelect(index)} style={{ width: "300px", height: "200px" }} /></span>
+              ))}
+            </div>
+          </Carousel.Item>}
+        {miniMovieList2.length > 0 && <Carousel.Item >
           <div className="d-flex justify-content-center">
-          {miniMovieList1.map((movie, index) => (
-            <span><img key={index} src={movie.cover_url ?? 'https://placehold.co/800x300'} className="m-3" onClick={() => handleSelect(index)} style={{ width: "300px", height: "200px" }} /></span>
-          ))}
+            {miniMovieList2.map((movie, index) => (
+              <span key={index}><img src={movie.cover_url ?? 'https://placehold.co/800x300'} className="m-3" onClick={() => handleSelect(index + 4)} style={{ width: "300px", height: "200px" }} /></span>
+            ))}
           </div>
-        </Carousel.Item>
-        <Carousel.Item >
-          <div className="d-flex justify-content-center">
-          {miniMovieList2.map((movie, index) => (
-            <span><img key={index} src={movie.cover_url ?? 'https://placehold.co/800x300'} className="m-3" onClick={() => handleSelect(index+4)} style={{ width: "300px", height: "200px" }} /></span>
-          ))}
-          </div>
-        </Carousel.Item>
+        </Carousel.Item>}
       </Carousel>
-
     </div>
   );
 }
