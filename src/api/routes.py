@@ -36,14 +36,14 @@ def user_referral_code():
             return new_code
 
 
-def send_email(to, subject, template):
+""" def send_email(to, subject, template):
     msg = Message(
         subject,
         recipients=[to],
         html=template,
         sender=app.config['MAIL_DEFAULT_SENDER']
     )
-    app.extensions['mail'].send(msg)
+    app.extensions['mail'].send(msg) """
 
 
 
@@ -75,7 +75,7 @@ def handle_signup():
                      credits = 0,
                      role = 'user',
                      referral_code = referral_code,
-                     is_active = False,  # El usuario está inactivo hasta que confirme su correo electrónico
+                     is_active = True,  # El usuario está inactivo hasta que confirme su correo electrónico
                      referred_by = reffered_by)
         db.session.add(user)
         db.session.commit()
@@ -89,13 +89,13 @@ def handle_signup():
         db.session.add(defaultPlaylist)
         db.session.commit()
 
-        # Enviar correo electrónico de confirmación
+        """ # Enviar correo electrónico de confirmación
         safeTime = URLSafeTimedSerializer(app.config['JWT_SECRET_KEY'])
         token = safeTime.dumps(user.email, salt='email-confirm')
         confirm_url = url_for('confirm_email', token=token, _external=True)
         html = render_template('confirm_email.html', confirm_url=confirm_url)
         subject = "Star trail - Confirm email"
-        send_email(user.email, subject, html)
+        send_email(user.email, subject, html) """
 
         response_body['message'] = f"User {data.get('username')} added. Please confirm your email."
         return response_body, 200
@@ -272,7 +272,7 @@ def handle_movies():
             response_body['message'] = f"{data.get('title')} successfully registered"
             return response_body, 200
         response_body['message'] = "Token is required to add a movie"
-        return response_body, 401
+        return response_body, 404
     response_body['message'] = "Method not allowed."
     return response_body, 405
 

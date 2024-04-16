@@ -40,6 +40,14 @@ export const Profile = () => {
         setShow(false)
     }
 
+    const imageHoverStyle = {
+        width: "50%",
+        transform: 'scale(1.1)',
+        cursor: 'pointer',
+    };
+
+
+
     const getProfile = async () => {
         const response = await actions.getUser(params.username)
         if (response.status == 404) navigate('/404')
@@ -55,6 +63,12 @@ export const Profile = () => {
             if (currentUser.results.username.toLowerCase() == params.username.toLowerCase()) {
                 setIsSameUser(true)
             }
+        }
+    }
+
+    const handleMouseClick = () => {
+        if (isSameUser && infoProfile?.email) {
+            window.location.href = 'https://www.gravatar.com'
         }
     }
 
@@ -87,10 +101,10 @@ export const Profile = () => {
                 <Row className="m-0">
                     {/* Perfil Izquierdo */}
                     <Col md={3} className="d-flex flex-column align-items-center profile-left py-5">
-                        <Image src={infoProfile.avatar_url} roundedCircle className="mb-3" style={{width: "50%"}} />
+                        <Image src={infoProfile.avatar_url} roundedCircle className="mb-3 image-hover-style" onClick={handleMouseClick} style={imageHoverStyle} onMouseEnter={(e) => e.target.style.transform = 'scale(1.1)'} onMouseLeave={(e) => e.target.style.transform = 'scale(1)'} />
                         <div className="card text-bg-secondary mt-3" >
                             {isSameUser && (
-                                <Button variant="secondary" className="d-grid gap-2" onClick={handleOpenSettings}>
+                                <Button variant="secondary" className="d-grid gap-2" onClick={handleOpenSettings} >
                                     Edit Profile
                                 </Button>
                             )}
@@ -103,39 +117,39 @@ export const Profile = () => {
                     {/* Perfil Derecho */}
                     <Col md={9} className="profile-right py-5">
                         <Row>
-                                <Col md={10} className="bg-opacity-rounded">
-                                    <h1 className="text-start m-0 txt-shadow">
-                                        {params.username} {infoProfile.is_active === false && (
-                                            <span className="mx-2 text-danger fw-bold">Account deactivated</span>
-                                        )}
-                                    </h1>
-                                    {(isSameUser || !privacy) && (
-                                        <p className="fw-bold fs-6 text-primary txt-shadow">
-                                            credits {infoProfile.credits} <i className="fa-solid fa-coins ms-1"></i>
-                                        </p>
+                            <Col md={10} className="bg-opacity-rounded">
+                                <h1 className="text-start m-0 txt-shadow">
+                                    {params.username} {infoProfile.is_active === false && (
+                                        <span className="mx-2 text-danger fw-bold">Account deactivated</span>
                                     )}
-                                    <div className="d-flex justify-content-inline my-5">
-                                        <h4 className="me-3 txt-shadow">Followings {infoProfile.followers.length}</h4>
-                                        <h4 className="txt-shadow">Followers {infoProfile.followings.length}</h4>
-                                    </div>
-                                    <div className="mt-4">
-                                        <Review user={params.username} />
-                                    </div>
-                                </Col>
-                                <Col md={2} className="d-flex justify-content-end pe-5">
-                                    <div>
-                                        <Button
-                                            className={!isSameUser ? "" : "disabled"}
-                                            onClick={handleFollow}
-                                            variant={isFollowing ? "danger me-3" : "success me-3"}
-                                        >
-                                            {isFollowing ? "Unfollow" : "Follow"}
-                                        </Button>
-                                    </div>
-                                </Col>
+                                </h1>
+                                {(isSameUser || !privacy) && (
+                                    <p className="fw-bold fs-6 text-warning txt-shadow">
+                                        credits {infoProfile.credits} <i className="fa-solid fa-coins ms-1"></i>
+                                    </p>
+                                )}
+                                <div className="d-flex justify-content-inline my-5">
+                                    <h4 className="me-3 txt-shadow">Followings {infoProfile.followers.length}</h4>
+                                    <h4 className="txt-shadow">Followers {infoProfile.followings.length}</h4>
+                                </div>
+                                <div className="mt-4">
+                                    <Review user={params.username} />
+                                </div>
+                            </Col>
+                            <Col md={2} className="d-flex justify-content-end pe-5">
+                                <div>
+                                    <Button
+                                        className={!isSameUser ? "" : "disabled"}
+                                        onClick={handleFollow}
+                                        variant={isFollowing ? "danger me-3" : "success me-3"}
+                                    >
+                                        {isFollowing ? "Unfollow" : "Follow"}
+                                    </Button>
+                                </div>
+                            </Col>
                         </Row>
 
-                        {/* Botón de Seguir/Dejar de Seguir */}
+                        {/* BotÃ³n de Seguir/Dejar de Seguir */}
                         <Settings show={show} handleClose={handleCloseSettings} />
                     </Col>
                 </Row>
